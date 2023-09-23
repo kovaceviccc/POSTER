@@ -1,0 +1,27 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-direction: center;
+    padding: 2%;
+    margin: 2%;
+}
+
+.card {
+    width: 80%;
+    max-width: 80%;
+    height: 66%;
+    padding: 2%;
+    margin: 2%;
+}
+
+img {
+    margin: 2%;
+    border: 1px solid #ddd;
+    border-radius: 2%;
+    padding: 2%;
+    margin: 2%;
+    width: 100%;
+    height: 80%;
+}

@@ -1,0 +1,18 @@
+.right-buttons {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    /* Pushes the buttons to the right */
+}
+
+.toolbar-button {
+    margin-left: 10px;
+    /* Add margin to the buttons */
+    padding: 5px 15px;
+    /* Add padding to the buttons */
+}
+
+.toolbar-select {
+    margin-left: 10px;
+    padding: 5px 10px;
+}

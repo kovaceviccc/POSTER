@@ -1,0 +1,45 @@
+<form [formGroup]="form">
+    <div>
+        <mat-card class="container">
+            <mat-card class="container">
+                <div style="width: 80%;">
+
+                    <mat-card>
+                        <mat-card-content>
+                            <img *ngIf="form.get('profileImage')!.value"
+                                src="http://localhost:3000/api/users/profileimage/{{form.get('profileImage')!.value}}">
+                        </mat-card-content>
+                        <ul>
+                            <li>
+                                <mat-progress-bar [value]='file.progress' />
+                            </li>
+                        </ul>
+                        <mat-card-actions>
+                            <button mat-button color="warn" (click)="onClick()">
+                                <mat-icon>cloud_upload</mat-icon>
+
+                            </button>
+                        </mat-card-actions>
+                    </mat-card>
+                    <input type="file" #fileUpload id="fileUpload" name="fileUpload" accept="image/*"
+                        style="display:none">
+                    <mat-form-field>
+                        <input matInput placeholder="ID" formControlName="id">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput placeholder="First name" formControlName="firstName">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput placeholder="Last name" formControlName="lastName">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput placeholder="Username" formControlName="userName">
+                    </mat-form-field>
+                    <p>To change the properties that are not shown wait</p>
+                    <button mat-flat-button color="primary" [disabled]="!form.valid" (click)="update()">Update
+                        profile</button>
+                </div>
+            </mat-card>
+        </mat-card>
+    </div>
+</form>

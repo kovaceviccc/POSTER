@@ -1,0 +1,25 @@
+<mat-toolbar color="primary">
+    <mat-toolbar-row>
+        <span>Third line</span>
+        <span class="example-spacer"></span>
+        <div class="right-buttons">
+            <button mat-flat-button routerLink="" class="toolbar-button">Browse jobs</button>
+            <button mat-flat-button routerLink="users" class="toolbar-button">Users</button>
+            <button mat-flat-button routerLink="admin" class="toolbar-button">Admin</button>
+            <button mat-flat-button routerLink="login" *ngIf="!isAuthenticated" class="toolbar-button">Login</button>
+            <button mat-flat-button routerLink="register" *ngIf="!isAuthenticated"
+                class="toolbar-button">Register</button>
+            <button mat-flat-button routerLink="update-profile" *ngIf="isAuthenticated" class="toolbar-button">Update
+                Profile</button>
+            <button mat-flat-button (click)="logOut()" *ngIf="isAuthenticated" class="toolbar-button">Log out</button>
+            <mat-form-field name="loginRegisterDropdown" class="toolbar-select">
+                <mat-select placeholder="Login" (selectionChange)="navigateTo($event.value)">
+                    <mat-option *ngFor="let entry of entries" [value]="entry.link">
+                        {{ entry.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </mat-toolbar-row>
+</mat-toolbar>
+<router-outlet></router-outlet>
