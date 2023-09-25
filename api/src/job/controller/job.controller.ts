@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Res, Request, UseGuards, Req, Query } from '@nestjs/common';
 import { CreateJobRequest } from 'src/job/models/dto/create-job-request';
-import {Response } from 'express';
+import { Response } from 'express';
 import { JobPost } from 'src/job/models/job-post.interface';
 import { Observable, from, map } from 'rxjs';
 import { JobService } from '../service/job.service';
@@ -31,8 +31,8 @@ export class JobController {
 
         const jobCreator = req.user;
 
-        if(jobCreator === null || jobCreator === undefined) return res.status(HttpStatus.UNAUTHORIZED).send();
-        
+        if (jobCreator === null || jobCreator === undefined) return res.status(HttpStatus.UNAUTHORIZED).send();
+
         //add validation
         const isValid = true;
         if (!isValid) return res.status(HttpStatus.BAD_REQUEST).send();
@@ -51,7 +51,7 @@ export class JobController {
         if (jobPostId === null) return res.status(HttpStatus.BAD_REQUEST).send();
 
         return this.jobService.getById(jobPostId).pipe(
-            map((result: JobPost) => {
+            map((result) => {
                 if (result === null) return res.status(HttpStatus.NOT_FOUND).send();
 
                 return res.status(HttpStatus.OK).send(result);
@@ -62,12 +62,12 @@ export class JobController {
     @Get('getAll')
     @hasRoles(UserRole.JOBCREATOR)
     @UseGuards(JwtAuthGuard, RolesGuard)
-    getJobsPosted(@Request() req, @Res() res: Response ) {
+    getJobsPosted(@Request() req, @Res() res: Response) {
 
         const userId = req.user.id;
         return this.jobService.getJobsByCreatorId(userId).pipe(
             map((result) => {
-                const status = result ? HttpStatus.NOT_FOUND : HttpStatus.OK      
+                const status = result ? HttpStatus.NOT_FOUND : HttpStatus.OK
                 return res.status(status).send(result);
             })
         );
@@ -78,14 +78,14 @@ export class JobController {
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('jobTitle') jobTitle: string): Observable<Pagination<JobPost>> {
-        
+
         limit = limit > 100 ? 100 : limit;
-        
-        if(jobTitle === null || jobTitle === undefined) {
-            return this.jobService.paginateJobs({page, limit, route: 'http://localhost/3000/jobs/paginate'});
+
+        if (jobTitle === null || jobTitle === undefined) {
+            return this.jobService.paginateJobs({ page, limit, route: 'http://localhost/3000/jobs/paginate' });
         }
 
-        return this.jobService.paginateFilterByTitle({page, limit, route: 'http://localhost/3000/jobs/paginate'}, jobTitle);
+        return this.jobService.paginateFilterByTitle({ page, limit, route: 'http://localhost/3000/jobs/paginate' }, jobTitle);
     }
 
 
@@ -100,7 +100,7 @@ export class JobController {
 
                 console.log()
 
-                if(result.success) return res.status(HttpStatus.CREATED).send("Created a job application");
+                if (result.success) return res.status(HttpStatus.CREATED).send("Created a job application");
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(result.message);
             })
         );
@@ -110,10 +110,10 @@ export class JobController {
     @UseGuards(JwtAuthGuard)
     getApplicationsForJob(@Param('jobId') jobId: string, @Request() req, @Res() res: Response) {
 
-        if(jobId === null || jobId === undefined) return res.status(HttpStatus.BAD_REQUEST);
+        if (jobId === null || jobId === undefined) return res.status(HttpStatus.BAD_REQUEST);
 
         return from(this.jobService.getAllApplications(jobId)).pipe(
-            map((result)=> {
+            map((result) => {
                 const status = result ? HttpStatus.ACCEPTED : HttpStatus.INTERNAL_SERVER_ERROR;
                 return res.status(status).send(result);
             })

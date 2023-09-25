@@ -12,13 +12,13 @@
             <button mat-flat-button routerLink="update-profile" *ngIf="isAuthenticated" class="toolbar-button">Update
                 Profile</button>
             <button mat-flat-button (click)="logOut()" *ngIf="isAuthenticated" class="toolbar-button">Log out</button>
-            <mat-form-field name="loginRegisterDropdown" class="toolbar-select">
+            <!-- <mat-form-field name="loginRegisterDropdown" class="toolbar-select">
                 <mat-select placeholder="Login" (selectionChange)="navigateTo($event.value)">
                     <mat-option *ngFor="let entry of entries" [value]="entry.link">
                         {{ entry.name }}
                     </mat-option>
                 </mat-select>
-            </mat-form-field>
+            </mat-form-field> -->
         </div>
     </mat-toolbar-row>
 </mat-toolbar>

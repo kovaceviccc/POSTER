@@ -22,9 +22,12 @@ import { JWT_OPTIONS, JwtHelperService } from '@auth0/angular-jwt';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
-import {MatDialogModule} from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 import { JobComponent } from './components/job/job.component';
 import { JobDialogComponent } from './components/job-dialog/job-dialog.component';
+import { JobDetailsComponent } from './components/job-details/job-details/job-details.component';
+import { TimePipePipe } from './pipes/time-pipe.pipe';
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,7 +37,9 @@ import { JobDialogComponent } from './components/job-dialog/job-dialog.component
     UserProfileComponent,
     UpdateUserProfileComponent,
     JobComponent,
-    JobDialogComponent
+    JobDialogComponent,
+    JobDetailsComponent,
+    TimePipePipe
   ],
   imports: [
     BrowserModule,
@@ -53,7 +58,8 @@ import { JobDialogComponent } from './components/job-dialog/job-dialog.component
     MatCardModule,
     MatProgressBarModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    MatDividerModule
   ],
   providers: [
     JwtHelperService,

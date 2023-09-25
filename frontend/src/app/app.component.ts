@@ -9,7 +9,7 @@ import { Observable, from, map, of } from 'rxjs';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  
+
   title = 'frontend';
   isAuthenticated: boolean = false;
   entries = [
@@ -41,10 +41,11 @@ export class AppComponent implements OnInit {
     this.router.navigate(['../', value]);
   }
 
-  logOut(): void  {
+  logOut(): void {
     this.authService.logOut().subscribe((result: boolean) => {
       this.isAuthenticated = result;
-    })
+      if (result) this.router.navigate(['']);
+    });
 
   }
 }

@@ -2,6 +2,8 @@ import { inject } from '@angular/core';
 import { ActivatedRoute, CanActivateFn, Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication-service/authentication.service';
 import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
+import { JobDialogComponent } from '../components/job-dialog/job-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 export const authGuard: CanActivateFn = () => isAuthenticated();
 export const adminGuard: CanActivateFn = () => isAdmin();
@@ -33,18 +35,23 @@ function isAdmin(): Observable<boolean> {
 
   const authService = inject(AuthenticationService);
   const router = inject(Router);
-  if (authService === null || router === null) return of(false);
+  const dialog = inject(MatDialog);
+  if (authService === null || router === null || dialog === null) return of(false);
 
   return from(authService.isAuthenticated()).pipe(
     switchMap((authenticated: boolean) => {
 
-      if(!authenticated) router.navigate(['login']);
-
+      if (!authenticated) router.navigate(['login']);
       return from(authService.isAdmin()).pipe(
-        map((result: boolean)=> {
+        map((result: boolean) => {
           console.log(result);
-          if(!result) {
-            router.navigate(['login']);
+          if (!result) {
+            const dialogRef = dialog.open(JobDialogComponent, { width: '500px', height: '200px' });
+            dialogRef.afterClosed().subscribe(
+              (result: boolean) => {
+                if (result) router.navigate(['login']);
+              }
+            );
           }
           return result;
         })

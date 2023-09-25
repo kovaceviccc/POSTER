@@ -8,6 +8,7 @@ import { JobService } from 'src/app/services/job-service/job.service';
 import { JobDialogComponent } from '../job-dialog/job-dialog.component';
 import { Route, Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
+import { JobDetailsComponent } from '../job-details/job-details/job-details.component';
 
 @Component({
   selector: 'app-job',
@@ -20,6 +21,7 @@ export class JobComponent implements OnInit {
 
   dataSource: JobData = null!;
   pageEvent: PageEvent = null!;
+  showJobDetails: boolean = false;
 
 
   constructor(
@@ -27,16 +29,14 @@ export class JobComponent implements OnInit {
     public dialog: MatDialog,
     private router: Router,
     private authService: AuthenticationService
-  ) {}
-
+  ) { }
 
   ngOnInit(): void {
     this.jobService.findAll(1, 5).pipe(
       map((jobData: JobData) => {
         this.dataSource = jobData
       })
-    )
-    .subscribe();
+    ).subscribe()
   }
 
   onPaginateChange(event: PageEvent) {
@@ -50,24 +50,34 @@ export class JobComponent implements OnInit {
         this.dataSource = jobData;
       })
     )
-    .subscribe();
+      .subscribe();
   }
 
-  
   bookmark(jobId: string) {
     this.authService.isAuthenticated().pipe(
       map((authenticated: boolean) => {
-        if(!authenticated) {
-
-          const dialogRef = this.dialog.open(JobDialogComponent, {width: '500px', height: '200px'});
+        if (!authenticated) {
+          const dialogRef = this.dialog.open(JobDialogComponent, { width: '500px', height: '200px' });
           dialogRef.afterClosed().subscribe(
             (result: boolean) => {
-              if(result) this.router.navigate(['login']);
+              if (result) this.router.navigate(['login']);
             }
           );
         }
       })
     ).subscribe();
+  }
+
+  goToDetails(jobId: string) {
+    // this.router.navigate(['job-details', jobId]);
+    const dialogRef = this.dialog.open(JobDetailsComponent, { data: jobId, exitAnimationDuration: 400, enterAnimationDuration: 500, width: '80%', height: '80%' },);
+    dialogRef.afterClosed().subscribe(
+      (result: boolean) => {
+
+        console.log(result);
+
+      }
+    )
   }
 
 }

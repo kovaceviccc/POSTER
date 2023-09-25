@@ -1,0 +1,79 @@
+.job-card {
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+}
+
+.close-button {
+    padding: 5px;
+}
+
+.job-content {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.job-details-left {
+    width: 65%;
+    /* Adjust the width as needed */
+}
+
+.job-details-right {
+    width: 30%;
+    /* Adjust the width as needed */
+}
+
+.job-title {
+    font-size: 24px;
+    margin: 0;
+}
+
+.job-posted-time {
+    font-size: 16px;
+}
+
+.job-location {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.divider {
+    margin: 15px 0;
+}
+
+.job-description-section {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.job-description-title {
+    font-size: 18px;
+    margin: 0;
+}
+
+.job-description {
+    font-size: 16px;
+}
+
+.job-actions {
+    margin: 5px;
+    padding: 5px;
+}
+
+.apply-button {
+    background-color: #007bff;
+    color: #fff;
+    margin-right: 10px;
+}
+
+.save-button {
+    background-color: #ccc;
+    color: #000;
+}
+
+.job-creator {
+    font-size: 16px;
+    margin-top: 20px;
+}

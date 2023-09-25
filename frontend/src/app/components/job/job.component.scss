@@ -6,21 +6,22 @@
   height: 100vh;
   padding-top: 20px;
 }
-  
+
 .job-card {
   max-width: 500px;
   width: 100%;
   margin: 8px;
   font-size: 18px;
 }
-  
+
 .job-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Align content to the left within the card */
+  align-items: flex-start;
+  /* Align content to the left within the card */
 }
 
-.job-content-actions { 
+.job-content-actions {
   display: flex;
   justify-content: end;
 }

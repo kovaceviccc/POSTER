@@ -7,6 +7,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { UpdateUserProfileComponent } from './components/update-user-profile/update-user-profile.component';
 import { adminGuard, authGuard } from './guards/auth.guard';
 import { JobComponent } from './components/job/job.component';
+import { JobDetailsComponent } from './components/job-details/job-details/job-details.component';
 
 const routes: Routes = [
   {
@@ -44,6 +45,11 @@ const routes: Routes = [
   {
     path: '',
     component: JobComponent
+  },
+  {
+    path: 'job-details/:id',
+    component: JobDetailsComponent,
+
   }
 ];
 

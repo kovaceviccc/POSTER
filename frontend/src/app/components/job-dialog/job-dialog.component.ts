@@ -8,9 +8,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 })
 export class JobDialogComponent {
 
-  @Output() loginConfirmed = new EventEmitter<boolean>();
-
-  constructor(private dialogRef: MatDialogRef<JobDialogComponent>) {}
+  constructor(private dialogRef: MatDialogRef<JobDialogComponent>) { }
 
   onActionClick(value: boolean) {
     this.dialogRef.close(value);

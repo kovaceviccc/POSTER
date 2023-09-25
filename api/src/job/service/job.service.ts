@@ -11,6 +11,7 @@ import { UserService } from 'src/user/user/service/user.service';
 import { Like, Repository } from 'typeorm';
 import { JobApplicationEntity } from '../models/job-application.entity';
 import { OperationResponse } from 'src/dto/outgoing';
+import { JobPostDetails } from '../models/dto/job-post-details';
 
 @Injectable()
 export class JobService {
@@ -46,7 +47,7 @@ export class JobService {
         );
     }
 
-    paginateFilterByTitle(options: IPaginationOptions, title: string) : Observable<Pagination<JobPost>> {
+    paginateFilterByTitle(options: IPaginationOptions, title: string): Observable<Pagination<JobPost>> {
 
         return from(this.jobPostRepository.findAndCount(
             {
@@ -57,7 +58,7 @@ export class JobService {
                 },
                 select: ['id', 'createdBy', 'applications', 'expiresAtUTC', 'jobTitle', 'jobDescription'],
                 where: [
-                    {jobTitle: Like(`%${title}`)}
+                    { jobTitle: Like(`%${title}`) }
                 ]
             }
         )).pipe(
@@ -68,7 +69,7 @@ export class JobService {
                     links: {
                         first: options.route + `?limit=${options.limit}`,
                         previous: options.route + '',
-                        next: options.route + `?limit=${options.limit}&page=${Number(options.page) +1}`,
+                        next: options.route + `?limit=${options.limit}&page=${Number(options.page) + 1}`,
                         last: options.route + `?limit=${options.limit}&page=${Math.ceil(totalJobs / Number(options.page))}`
                     },
                     meta: {
@@ -76,7 +77,7 @@ export class JobService {
                         itemCount: jobs.length,
                         itemsPerPage: Number(options.limit),
                         totalItems: totalJobs,
-                        totalPages: Math.ceil(totalJobs/ Number(options.limit))
+                        totalPages: Math.ceil(totalJobs / Number(options.limit))
                     }
                 };
                 return jobsPageable;
@@ -87,7 +88,7 @@ export class JobService {
     paginateJobs(options: IPaginationOptions): Observable<Pagination<JobPost>> {
         return from(paginate<JobPostEntity>(this.jobPostRepository, options, {
             relations: ['applications'],
-            order: {postedAtUTC: 'DESC'}
+            order: { postedAtUTC: 'DESC' }
         })).pipe(
             map((jobs: Pagination<JobPost>) => {
                 return jobs;
@@ -95,13 +96,63 @@ export class JobService {
         );
     }
 
-    getById(jobId: string): Observable<JobPost> {
+    // getById(jobId: string): Observable<JobPostDetails> {
+    //     return from(this.jobPostRepository.findOne({
+    //         where: { id: jobId },
+    //         relations: ['applications', 'createdBy', 'createdBy.jobsCreated']
+    //     })).pipe(
+    //         map((result) => {
 
-        return from(this.jobPostRepository.findOne({
-            where: { id: jobId },
-            relations: ['createdBy']
-        }));
+    //             const obj: JobPostDetails = {
+    //                 id: result.id,
+    //                 jobTitle: result.jobTitle,
+    //                 jobDescription: result.jobDescription,
+    //                 postedAtUTC: result.postedAtUTC,
+    //                 applicationsCount: result.applications.length,
+    //                 createdBy: `${result.createdBy.firstName} ${result.createdBy.lastName}`,
+    //                 jobsByCreatorCount: result.createdBy.jobsCreated.length
+    //             }
+    //             console.log(obj);
+    //             return obj;
+    //         })
+    //     );
+    // }
+    getById(jobId: string): Observable<JobPostDetails> {
+        return from(
+            this.jobPostRepository
+                .createQueryBuilder('jobPost')
+                .addSelect('jobPost.id', 'id')
+                .addSelect('jobPost.jobTitle', 'jobTitle')
+                .addSelect('jobPost.jobDescription', 'jobDescription')
+                .addSelect('jobPost.postedAtUTC', 'postedAtUTC')
+                .addSelect('', '')
+                .addSelect('COUNT(DISTINCT  application.id)', 'applicationsCount')
+                .leftJoin('jobPost.applications', 'application')
+                .addSelect('user.firstName', 'creatorFirstName')
+                .addSelect('user.lastName', 'creatorLastName')
+                .addSelect('COUNT(DISTINCT  jobsCreated.id)', 'jobsByCreatorCount')
+                .leftJoin('jobPost.createdBy', 'user')
+                .leftJoin('user.jobsCreated', 'jobsCreated')
+                .where('jobPost.id = :jobId', { jobId })
+                .groupBy('jobPost.id, user.firstName, user.lastName')
+                .getRawOne(),
+        ).pipe(
+            map((result) => {
+                console.log(result);
+                return {
+                    id: result.id,
+                    jobTitle: result.jobTitle,
+                    jobDescription: result.jobDescription,
+                    postedAtUTC: result.postedAtUTC,
+                    applicationsCount: result.applicationsCount || 0,
+                    createdBy: `${result.creatorFirstName} ${result.creatorLastName}`,
+                    jobsByCreatorCount: result.jobsByCreatorCount || 0,
+                }
+
+            }),
+        );
     }
+
 
     getJobsByCreatorId(creatorId: string): Observable<JobPost[]> {
 
@@ -113,17 +164,17 @@ export class JobService {
 
     }
 
-    applyForJob(jobId: string, user:UserEntity): Observable<OperationResponse> {
+    applyForJob(jobId: string, user: UserEntity): Observable<OperationResponse> {
 
-        return from(this.jobPostRepository.findOne({where: {id: jobId}, relations: ['applications', 'applications.applicant', 'createdBy']})).pipe(
+        return from(this.jobPostRepository.findOne({ where: { id: jobId }, relations: ['applications', 'applications.applicant', 'createdBy'] })).pipe(
             switchMap((job: JobPostEntity) => {
-                if(!job) return of({
+                if (!job) return of({
                     success: false,
                     message: 'Job does not exist'
                 });
 
-                if(job.createdBy.id === user.id) {
-                    return of( {
+                if (job.createdBy.id === user.id) {
+                    return of({
                         message: "Job creator cannot apply for the job he created",
                         success: false
                     });
@@ -133,7 +184,7 @@ export class JobService {
                     (application) => application.applicant.id === user.id
                 );
 
-                if(existingApplication) return of({
+                if (existingApplication) return of({
                     success: false,
                     message: 'Application already exists'
                 });
@@ -151,32 +202,32 @@ export class JobService {
                     }),
                     catchError((error) => {
                         console.log('Error occured while saving application: ', error);
-                        return of({success:false, message: 'error occured while processing request'});
-                    } )
+                        return of({ success: false, message: 'error occured while processing request' });
+                    })
                 );
             })
         );
     }
 
-    getAllApplications(jobId: string) : Observable<JobApplicationEntity[]> {
+    getAllApplications(jobId: string): Observable<JobApplicationEntity[]> {
 
-        if(jobId === null || jobId === undefined) return of(new Array<JobApplicationEntity>());
+        if (jobId === null || jobId === undefined) return of(new Array<JobApplicationEntity>());
 
         return from(
             this.jobApplicationRepository
-            .createQueryBuilder('application')
-            .where('job.id = :jobId', {jobId})
-            .innerJoinAndSelect('application.job', 'job')
-            .innerJoinAndSelect('application.applicant', 'applicant')
-            .getMany()
+                .createQueryBuilder('application')
+                .where('job.id = :jobId', { jobId })
+                .innerJoinAndSelect('application.job', 'job')
+                .innerJoinAndSelect('application.applicant', 'applicant')
+                .getMany()
         ).pipe(
             map((applications) => {
 
-            applications.forEach(element => {
+                applications.forEach(element => {
                     delete element.applicant.passwordHash;
                 });
 
-            return applications;
+                return applications;
             }),
             catchError((error) => {
                 console.log(error);

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { Observable, map, of, switchMap } from 'rxjs';
 import { JwtHelperService } from "@auth0/angular-jwt";
+import { Router } from '@angular/router';
 
 
 export interface User {
@@ -24,7 +25,10 @@ export const JWT_TOKEN = 'jwt_token';
 })
 export class AuthenticationService {
 
-  constructor(private httpClient: HttpClient, private jwtHelper: JwtHelperService) { }
+  constructor(
+    private readonly httpClient: HttpClient,
+    private readonly jwtHelper: JwtHelperService,
+    private readonly router: Router) { }
 
   login(email: string, password: string) {
     return this.httpClient.post<any>('/api/users/login', { email, password }).pipe(
@@ -51,7 +55,7 @@ export class AuthenticationService {
 
   isAdmin(): Observable<boolean> {
     const token: string | null = localStorage.getItem(JWT_TOKEN);
-    if(token === null) return of(false);
+    if (token === null) return of(false);
     const decodedToken = this.jwtHelper.decodeToken(token);
     const result = decodedToken.user.role === 'admin'
     return of(result);

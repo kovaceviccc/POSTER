@@ -1,0 +1,33 @@
+<mat-card-header>
+    <button mat-icon-button class="close-button" (click)="ngOnDestroy()">
+        <mat-icon>close</mat-icon>
+    </button>
+</mat-card-header>
+
+<mat-card class="job-card">
+    <mat-card-content class="job-content">
+        <div class="job-details-left">
+            <h2 class="job-title">{{job.jobTitle}}</h2>
+            <p class="job-posted-time">Posted: {{job.postedAtUTC | timePipe}}</p>
+            <p class="job-location">Location: Remote</p>
+            <mat-divider class="divider"></mat-divider>
+            <div class="job-description-section">
+                <h3 class="job-description-title">Job Description</h3>
+                <p class="job-description">
+                    {{job.jobDescription}}
+                </p>
+            </div>
+        </div>
+        <div class="job-details-right">
+            <div class="job-actions">
+                <button mat-raised-button color="primary" class="apply-button">Apply Now</button>
+                <button mat-raised-button class="save-button">Save Job</button>
+            </div>
+            <mat-divider class="divider"></mat-divider>
+            <div class="job-creator">
+                <p>Job Posted by: {{job.createdBy}}</p>
+                <p>Jobs Posted by this User: {{job.applicationsCount}}</p>
+            </div>
+        </div>
+    </mat-card-content>
+</mat-card>
