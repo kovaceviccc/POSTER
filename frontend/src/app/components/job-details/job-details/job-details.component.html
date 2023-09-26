@@ -20,14 +20,32 @@
         </div>
         <div class="job-details-right">
             <div class="job-actions">
-                <button mat-raised-button color="primary" class="apply-button">Apply Now</button>
+                
                 <button mat-raised-button class="save-button">Save Job</button>
             </div>
             <mat-divider class="divider"></mat-divider>
             <div class="job-creator">
                 <p>Job Posted by: {{job.createdBy}}</p>
-                <p>Jobs Posted by this User: {{job.applicationsCount}}</p>
+                <p>Jobs Posted by this User: {{job.jobsByCreatorCount}}</p>
+                <p>Applications: {{job.applicationsCount}}</p>
             </div>
         </div>
     </mat-card-content>
+
+    <form>
+        <mat-card class="job-card">
+            <div class="apply-section">
+                <h3 class="apply-title">Apply for this Job</h3>
+                <div class="file-upload">
+                    <mat-label>Upload CV(pdf)</mat-label>
+                    <input type="file" (change)="onFileChange($event)" #fileupload accept=".pdf">
+                </div>
+                <mat-form-field class="cover-letter">
+                    <mat-label>Cover Letter (Optional)</mat-label>
+                    <textarea (change)="onTextChange(coverLetter.value)" #coverLetter matInput rows="10" style="width: 100%;"></textarea>
+                </mat-form-field>
+                <button mat-raised-button color="primary" class="apply-button" (click)="onSubmit()">Apply Now</button>
+            </div>
+        </mat-card>
+    </form>
 </mat-card>

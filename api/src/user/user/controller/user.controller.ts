@@ -10,47 +10,10 @@ import { RolesGuard } from 'src/auth/guards/roles-guard';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { RegisterRequestDTO } from '../models/DTO/Request/RegisterRequestDTO';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { extname, join } from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import { existsSync, mkdirSync } from 'fs';
-import path = require('path');
 import { UpdateResult } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import { error } from 'console';
-
-
-
-export const multerConfig = {
-    dest: './uploads/profileimages',
-};
-
-export const multerOptions = {
-    // Check the mimetypes to allow for upload
-    fileFilter: (req: any, file: any, cb: any) => {
-        if (file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-            // Allow storage of file
-            cb(null, true);
-        } else {
-            // Reject file
-            cb(new HttpException(`Unsupported file type ${extname(file.originalname)}`, HttpStatus.BAD_REQUEST), false);
-        }
-    },
-    // Storage properties
-    storage: diskStorage({
-        // Destination storage path details
-        destination: function (req, file, cb) {
-            cb(null, multerConfig.dest);
-        },
-        // File modification details
-        filename: (req: any, file: any, cb: any) => {
-            // Calling the callback passing the random name generated with the original extension name
-            const filename: string = path.parse(file.originalname).name.replace(/\s/g, '') + uuidv4();
-            const extension: string = path.parse(file.originalname).ext;
-            cb(null, `${filename}${extension}`);
-        },
-    }),
-};
+import {multerOptionsImages} from 'src/const';
 
 
 @Controller('users')
@@ -165,7 +128,7 @@ export class UserController {
 
     @Post('upload')
     @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('file', multerOptions))
+    @UseInterceptors(FileInterceptor('file', multerOptionsImages))
     upload(@UploadedFile() file: Express.Multer.File, @Request() req, @Res() res: Response): Observable<Object> {
 
         if (file === null || file === undefined) {

@@ -1,17 +1,20 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Res, Request, UseGuards, Req, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, Post, Res, Request, UseGuards, Req, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CreateJobRequest } from 'src/job/models/dto/create-job-request';
 import { Response } from 'express';
 import { JobPost } from 'src/job/models/job-post.interface';
-import { Observable, from, map } from 'rxjs';
+import { Observable, catchError, from, map, of } from 'rxjs';
 import { JobService } from '../service/job.service';
 import { RolesGuard } from 'src/auth/guards/roles-guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-guard';
 import { hasRoles } from 'src/auth/decorator/roles.decorator';
-import { UserRole } from 'src/user/user/models/user.interface';
+import { User, UserRole } from 'src/user/user/models/user.interface';
 import { OperationResponse } from 'src/dto/outgoing';
-import { QueryResult } from 'typeorm';
 import { Pagination } from 'nestjs-typeorm-paginate';
-import { JobPostEntity } from '../models/job-post.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptionsPDF } from 'src/const';
+import { unsubscribe } from 'diagnostics_channel';
+import { UserEntity } from 'src/user/user/models/user.entity';
+import { error } from 'console';
 
 
 @Controller('job')
@@ -30,10 +33,8 @@ export class JobController {
         @Res() res: Response) {
 
         const jobCreator = req.user;
-
         if (jobCreator === null || jobCreator === undefined) return res.status(HttpStatus.UNAUTHORIZED).send();
 
-        //add validation
         const isValid = true;
         if (!isValid) return res.status(HttpStatus.BAD_REQUEST).send();
 
@@ -88,24 +89,6 @@ export class JobController {
         return this.jobService.paginateFilterByTitle({ page, limit, route: 'http://localhost/3000/jobs/paginate' }, jobTitle);
     }
 
-
-
-
-    @Post('apply/:jobId')
-    @UseGuards(JwtAuthGuard)
-    applyForJob(@Param('jobId') jobId: string, @Request() req, @Res() res: Response) {
-
-        return this.jobService.applyForJob(jobId, req.user).pipe(
-            map((result: OperationResponse) => {
-
-                console.log()
-
-                if (result.success) return res.status(HttpStatus.CREATED).send("Created a job application");
-                return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(result.message);
-            })
-        );
-    }
-
     @Get('applications/:jobId')
     @UseGuards(JwtAuthGuard)
     getApplicationsForJob(@Param('jobId') jobId: string, @Request() req, @Res() res: Response) {
@@ -119,4 +102,48 @@ export class JobController {
             })
         );
     }
+
+    // @Post('apply/:jobId')
+    // @UseGuards(JwtAuthGuard)
+    // applyForJob(@Param('jobId') jobId: string, @Request() req, @Res() res: Response) {
+
+    //     return this.jobService.applyForJob(jobId, req.user).pipe(
+    //         map((result: OperationResponse) => {
+
+    //             console.log()
+
+    //             if (result.success) return res.status(HttpStatus.CREATED).send("Created a job application");
+    //             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(result.message);
+    //         })
+    //     );
+    // }
+
+    @Post('apply/:jobId')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('file', multerOptionsPDF))
+    applyForJob(
+        @UploadedFile() file: Express.Multer.File ,
+        @Param('jobId') jobId:string,
+        @Body() coverLetter: string,
+        @Request() req,
+        @Res() res: Response) : Observable<Response>{
+
+        if(file === null || file === undefined)
+            return of(res.status(HttpStatus.BAD_REQUEST).send("CV is missing"));
+
+        const user: UserEntity = req.user;
+
+        return this.jobService.applyForJob(jobId, user, file.filename).pipe(
+            map((result) => {
+                console.log(result);
+                const status = result.success ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+                return res.status(status).send(result);
+            }),
+            catchError((error) => {
+                return of(res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error));
+            })
+        )
+
+    }
+
 }

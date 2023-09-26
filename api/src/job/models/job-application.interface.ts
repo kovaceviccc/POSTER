@@ -6,4 +6,6 @@ export interface JobApplication {
     id: string;
     applicant: User;
     job: JobPost;
+    cvPath: string;
+    createdAtUTC: Date;
 }

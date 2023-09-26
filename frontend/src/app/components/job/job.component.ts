@@ -73,9 +73,7 @@ export class JobComponent implements OnInit {
     const dialogRef = this.dialog.open(JobDetailsComponent, { data: jobId, exitAnimationDuration: 400, enterAnimationDuration: 500, width: '80%', height: '80%' },);
     dialogRef.afterClosed().subscribe(
       (result: boolean) => {
-
         console.log(result);
-
       }
     )
   }

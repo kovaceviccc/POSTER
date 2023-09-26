@@ -96,27 +96,6 @@ export class JobService {
         );
     }
 
-    // getById(jobId: string): Observable<JobPostDetails> {
-    //     return from(this.jobPostRepository.findOne({
-    //         where: { id: jobId },
-    //         relations: ['applications', 'createdBy', 'createdBy.jobsCreated']
-    //     })).pipe(
-    //         map((result) => {
-
-    //             const obj: JobPostDetails = {
-    //                 id: result.id,
-    //                 jobTitle: result.jobTitle,
-    //                 jobDescription: result.jobDescription,
-    //                 postedAtUTC: result.postedAtUTC,
-    //                 applicationsCount: result.applications.length,
-    //                 createdBy: `${result.createdBy.firstName} ${result.createdBy.lastName}`,
-    //                 jobsByCreatorCount: result.createdBy.jobsCreated.length
-    //             }
-    //             console.log(obj);
-    //             return obj;
-    //         })
-    //     );
-    // }
     getById(jobId: string): Observable<JobPostDetails> {
         return from(
             this.jobPostRepository
@@ -125,7 +104,6 @@ export class JobService {
                 .addSelect('jobPost.jobTitle', 'jobTitle')
                 .addSelect('jobPost.jobDescription', 'jobDescription')
                 .addSelect('jobPost.postedAtUTC', 'postedAtUTC')
-                .addSelect('', '')
                 .addSelect('COUNT(DISTINCT  application.id)', 'applicationsCount')
                 .leftJoin('jobPost.applications', 'application')
                 .addSelect('user.firstName', 'creatorFirstName')
@@ -138,7 +116,6 @@ export class JobService {
                 .getRawOne(),
         ).pipe(
             map((result) => {
-                console.log(result);
                 return {
                     id: result.id,
                     jobTitle: result.jobTitle,
@@ -148,14 +125,12 @@ export class JobService {
                     createdBy: `${result.creatorFirstName} ${result.creatorLastName}`,
                     jobsByCreatorCount: result.jobsByCreatorCount || 0,
                 }
-
             }),
         );
     }
 
 
     getJobsByCreatorId(creatorId: string): Observable<JobPost[]> {
-
         return from(this.userService.findOne(creatorId)).pipe(
             map((result: User) => {
                 return result.jobsCreated;
@@ -164,8 +139,7 @@ export class JobService {
 
     }
 
-    applyForJob(jobId: string, user: UserEntity): Observable<OperationResponse> {
-
+    applyForJob(jobId: string, user: UserEntity, cvFilePath: string): Observable<OperationResponse> {
         return from(this.jobPostRepository.findOne({ where: { id: jobId }, relations: ['applications', 'applications.applicant', 'createdBy'] })).pipe(
             switchMap((job: JobPostEntity) => {
                 if (!job) return of({
@@ -192,6 +166,7 @@ export class JobService {
                 const application: JobApplicationEntity = new JobApplicationEntity();
                 application.applicant = user;
                 application.job = job;
+                application.cvPath = cvFilePath;
 
                 return from(this.jobApplicationRepository.save(application)).pipe(
                     map(() => {

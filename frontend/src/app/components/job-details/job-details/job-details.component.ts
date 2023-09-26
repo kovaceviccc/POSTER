@@ -1,7 +1,9 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Component, ElementRef, EventEmitter, Inject, OnDestroy, OnInit, Renderer2, Output } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ActivatedRoute, Route, Router } from '@angular/router';
+import { Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MAT_DIALOG_DATA,MatDialogRef } from '@angular/material/dialog';
+import { PageEvent } from '@angular/material/paginator';
+import { Router } from '@angular/router';
 import { map } from 'rxjs';
 import { JobDetails } from 'src/app/models/job-details';
 import { JobService } from 'src/app/services/job-service/job.service';
@@ -21,13 +23,18 @@ import { JobService } from 'src/app/services/job-service/job.service';
 })
 export class JobDetailsComponent implements OnInit, OnDestroy {
 
-  public job: JobDetails = null!;
+  cvFile: File = null!;
+  coverLetter:string = null!;
+  job: JobDetails = null!;
+  form: FormGroup = null!;
+  file: File = null!;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) private readonly jobId: string,
     private dialogRef: MatDialogRef<JobDetailsComponent>,
     private jobService: JobService,
-    private readonly router: Router
+    private readonly router: Router,
+    private formBuilder: FormBuilder
   ) { }
 
   ngOnInit(): void {
@@ -36,13 +43,41 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
 
     this.jobService.findById(this.jobId).pipe(
       map((result) => {
+        console.log(result);
         this.job = result
       })
     ).subscribe();
 
+    this.form = this.formBuilder.group(
+      {
+        coverLetter: [{value: null}, [Validators.minLength(50)]],
+        cvFile: [null]
+      }
+    );
+  }
 
+  onTextChange(text: string) {
+    this.coverLetter = text;
+  }
+
+  onFileChange(event: any) {
+    const fileList: FileList = event.target.files;
+    if(fileList.length > 0) {
+      this.cvFile = fileList[0];
+    }
 
   }
+
+  onSubmit() {
+    
+    if(!this.cvFile) return;
+    this.jobService.applyForJob(this.jobId, this.cvFile, this.coverLetter).pipe(
+      map((result) => {
+        //console.log(result)
+      })
+    ).subscribe();
+  }
+
   ngOnDestroy(): void {
     this.dialogRef.close(false);
   }

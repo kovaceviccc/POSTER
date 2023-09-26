@@ -7,4 +7,5 @@ export class JobDetails {
     postedAtUTC: Date = null!;
     applicationsCount?: Number = null!;
     createdBy: string = null!;
+    jobsByCreatorCount?: Number;
 }
