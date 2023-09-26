@@ -8,7 +8,7 @@ import { JobPost } from 'src/job/models/job-post.interface';
 import { UserEntity } from 'src/user/user/models/user.entity';
 import { User } from 'src/user/user/models/user.interface';
 import { UserService } from 'src/user/user/service/user.service';
-import { Like, Repository } from 'typeorm';
+import { Like, Repository, SelectQueryBuilder } from 'typeorm';
 import { JobApplicationEntity } from '../models/job-application.entity';
 import { OperationResponse } from 'src/dto/outgoing';
 import { JobPostDetails } from '../models/dto/job-post-details';
@@ -39,7 +39,6 @@ export class JobService {
                 const job = this.mapDTO(createJobRequest, creator);
                 return from(this.jobPostRepository.save(job)).pipe(
                     map((result: JobPostEntity) => {
-                        console.log(result);
                         return result !== null;
                     })
                 );
@@ -85,14 +84,17 @@ export class JobService {
         );
     }
 
-    paginateJobs(options: IPaginationOptions): Observable<Pagination<JobPost>> {
+    paginateJobs(options: IPaginationOptions): Observable<Pagination<JobPostDetails>> {
         return from(paginate<JobPostEntity>(this.jobPostRepository, options, {
-            relations: ['applications', 'createdBy'],
+            relations: ['applications', 'createdBy', 'createdBy.jobsCreated'],
             order: { postedAtUTC: 'DESC' }
         })).pipe(
-            map((jobs: Pagination<JobPost>) => {
-                console.log(jobs);
-                return jobs;
+            map((jobs: Pagination<JobPostEntity>) => {
+                return {
+                    items: this.Map(jobs.items),
+                    links: jobs.links,
+                    meta: jobs.meta
+                };
             })
         );
     }
@@ -123,8 +125,9 @@ export class JobService {
                     jobDescription: result.jobDescription,
                     postedAtUTC: result.postedAtUTC,
                     applicationsCount: result.applicationsCount || 0,
-                    createdBy: `${result.creatorFirstName} ${result.creatorLastName}`,
+                    creatorName: `${result.creatorFirstName} ${result.creatorLastName}`,
                     jobsByCreatorCount: result.jobsByCreatorCount || 0,
+
                 }
             }),
         );
@@ -221,4 +224,83 @@ export class JobService {
         result.createdBy = creator;
         return result;
     }
+
+    private Map(jobPosts: JobPostEntity[]): JobPostDetails[] {
+        return jobPosts.map((jobPost) => {
+            const {
+                id,
+                jobTitle,
+                jobDescription,
+                postedAtUTC,
+                applications,
+                createdBy,
+            } = jobPost;
+
+            const applicationsCount = applications.length;
+            const { firstName, lastName, jobsCreated } = createdBy;
+            const jobsByCreatorCount = jobsCreated.length;
+
+            return {
+                id,
+                jobTitle,
+                jobDescription,
+                postedAtUTC,
+                applicationsCount,
+                creatorName: `${firstName} ${lastName}`,
+                jobsByCreatorCount,
+                creatorId: createdBy.id
+            };
+        });
+
+    }
 }
+
+
+// const queryBuilder = 
+        // this.jobPostRepository
+        // .createQueryBuilder('jobPost')
+        // .addSelect('jobPost.id', 'id')
+        // .addSelect('jobPost.jobTitle', 'jobTitle')
+        // .addSelect('jobPost.jobDescription', 'jobDescription')
+        // .addSelect('jobPost.postedAtUTC', 'postedAtUTC')
+        // .addSelect('COUNT(DISTINCT  application.id)', 'applicationsCount')
+        // .leftJoin('jobPost.applications', 'application')
+        // .addSelect('user.firstName', 'creatorFirstName')
+        // .addSelect('user.lastName', 'creatorLastName')
+        // .addSelect('user.id', 'creatorId')
+        // .addSelect('COUNT(DISTINCT  jobsCreated.id)', 'jobsByCreatorCount')
+        // .leftJoin('jobPost.createdBy', 'user')
+        // .leftJoin('user.jobsCreated', 'jobsCreated')
+        // .groupBy('jobPost.id, user.firstName, user.lastName, user.id') as SelectQueryBuilder<JobPostDetails>;
+
+
+        // return from(paginate<JobPostDetails>(queryBuilder, options)).pipe(
+        //     map((job: Pagination<JobPostDetails>) => {
+        //         console.log(job.items);
+        //         return job;
+        //     })
+        // )
+
+        // return from(queryBuilder.getRawMany()).pipe(
+        //     map((jobs, totalJobs) => {
+                
+        //         const jobsPageable: Pagination<JobPostDetails> = {
+        //             items: jobs,
+        //             links: {
+        //                 first: options.route + `?limit=${options.limit}`,
+        //                 previous: options.route + '',
+        //                 next: options.route + `?limit=${options.limit}&page=${Number(options.page) + 1}`,
+        //                 last: options.route + `?limit=${options.limit}&page=${Math.ceil(totalJobs / Number(options.page))}`
+        //             },
+        //             meta: {
+        //                 currentPage: Number(options.page),
+        //                 itemCount: jobs.length,
+        //                 itemsPerPage: Number(options.limit),
+        //                 totalItems: totalJobs,
+        //                 totalPages: Math.ceil(totalJobs / Number(options.limit))
+        //             }
+        //         };
+        //         return jobsPageable;
+        //     })
+        // );
+

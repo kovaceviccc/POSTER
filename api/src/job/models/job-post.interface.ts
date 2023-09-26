@@ -7,8 +7,8 @@ export interface JobPost {
     id?: string;
     jobTitle?: string;
     jobDescription?: string;
-    postedAtUtc?: Date;
-    expiresAtUtC?: Date;
+    postedAtUTC?: Date;
+    expiresAtUTC?: Date;
     expired?: boolean;
     applications?: JobApplication[];
     createdBy?: User;

@@ -15,6 +15,7 @@ import { multerOptionsPDF } from 'src/const';
 import { unsubscribe } from 'diagnostics_channel';
 import { UserEntity } from 'src/user/user/models/user.entity';
 import { error } from 'console';
+import { JobPostDetails } from '../models/dto/job-post-details';
 
 
 @Controller('job')
@@ -78,7 +79,7 @@ export class JobController {
     paginate(
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
-        @Query('jobTitle') jobTitle: string): Observable<Pagination<JobPost>> {
+        @Query('jobTitle') jobTitle: string): Observable<Pagination<JobPostDetails>> {
 
         limit = limit > 100 ? 100 : limit;
 
@@ -86,7 +87,7 @@ export class JobController {
             return this.jobService.paginateJobs({ page, limit, route: 'http://localhost/3000/jobs/paginate' });
         }
 
-        return this.jobService.paginateFilterByTitle({ page, limit, route: 'http://localhost/3000/jobs/paginate' }, jobTitle);
+        //return this.jobService.paginateFilterByTitle({ page, limit, route: 'http://localhost/3000/jobs/paginate' }, jobTitle);
     }
 
     @Get('applications/:jobId')
@@ -135,7 +136,6 @@ export class JobController {
 
         return this.jobService.applyForJob(jobId, user, file.filename).pipe(
             map((result) => {
-                console.log(result);
                 const status = result.success ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
                 return res.status(status).send(result);
             }),

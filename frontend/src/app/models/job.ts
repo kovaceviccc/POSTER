@@ -4,7 +4,8 @@ export interface Job {
     jobTitle: string;
     jobDescription: string;
     postedAtUTC: Date;
-    numberOfApplicants: number;
-    createdBy: string;
-    creatorId: string;
+    applicationsCount: Number;
+    creatorName: string;
+    jobsByCreatorCount: Number;
+    creatorId?:string;
 }

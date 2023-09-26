@@ -55,6 +55,7 @@ export class JobComponent implements OnInit {
     page++;
     this.jobService.findAll(page, size).pipe(
       map((jobData: JobData) => {
+        console.log(jobData);
         this.dataSource = jobData;
         this.filteredJobs = this.dataSource.items;
       })

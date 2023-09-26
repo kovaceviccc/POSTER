@@ -18,7 +18,7 @@
     <mat-card class="job-card" *ngFor="let job of filteredJobs">
       <mat-card-header>
         <mat-card-title>{{ job.jobTitle }}</mat-card-title>
-        <mat-card-subtitle>Created by Pjeki</mat-card-subtitle>
+        <mat-card-subtitle>Created by: {{job.creatorName}}</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>

@@ -3,6 +3,7 @@ import { JobPost } from "./job-post.interface";
 import { JobApplicationEntity } from "./job-application.entity";
 import { User } from "src/user/user/models/user.interface";
 import { UserEntity } from "src/user/user/models/user.entity";
+import { JobPostDetails } from "./dto/job-post-details";
 
 
 @Entity('job_post')

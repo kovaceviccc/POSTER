@@ -1,11 +1,10 @@
 
-export class JobPostDetails {
+export class JobBasic {
     id: string;
     jobTitle: string;
     jobDescription: string;
     postedAtUTC: Date;
     applicationsCount: Number;
-    creatorName: string;
+    createdBy: string;
     jobsByCreatorCount: Number;
-    creatorId?:string;
 }
