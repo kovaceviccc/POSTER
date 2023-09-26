@@ -10,8 +10,9 @@
 .job-card {
   max-width: 500px;
   width: 100%;
-  margin: 8px;
   font-size: 18px;
+  padding: 10;
+  margin-top: 30px;
 }
 
 .job-content {
@@ -24,4 +25,12 @@
 .job-content-actions {
   display: flex;
   justify-content: end;
+}
+
+.filter-container {
+  display: flex;
+  flex-direction: row;
+  column-gap: 20px ;
+  margin: 20px;
+  padding: 20px;
 }

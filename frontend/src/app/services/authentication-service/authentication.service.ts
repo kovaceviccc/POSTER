@@ -61,6 +61,13 @@ export class AuthenticationService {
     return of(result);
   }
 
+  isJobCreator(): Observable<boolean> {
+    const token: string | null = localStorage.getItem(JWT_TOKEN);
+    if (token === null) return of(false);
+    const decodedToken = this.jwtHelper.decodeToken(token);
+    const result = decodedToken.user.role === 'jobcreator'
+    return of(result);
+  }
   getUserId(): Observable<number> {
     const jwt = localStorage.getItem(JWT_TOKEN);
     if (jwt === null) return of(-1);

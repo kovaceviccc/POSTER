@@ -1,7 +1,21 @@
-<div class="background-tint" *ngIf="showJobDetails"></div>
+
 <div class="job-list-container">
   <div class="job-content">
-    <mat-card class="job-card" *ngFor="let job of dataSource.items">
+    <div class="filter-container">
+      <mat-card>
+        <button mat-button (click)="filterJobs('all')">All Jobs</button>
+      </mat-card>
+      <mat-card>
+        <button mat-button (click)="filterJobs('recent')">Most Recent</button>
+      </mat-card>
+      <mat-card>
+        <button mat-button (click)="filterJobs('saved')">Saved</button>
+      </mat-card>
+      <mat-card *ngIf="isJobPoster">
+        <button mat-button (click)="filterJobs('saved')">Posted jobs</button>
+      </mat-card>
+    </div>
+    <mat-card class="job-card" *ngFor="let job of filteredJobs">
       <mat-card-header>
         <mat-card-title>{{ job.jobTitle }}</mat-card-title>
         <mat-card-subtitle>Created by Pjeki</mat-card-subtitle>
@@ -14,7 +28,7 @@
 
       <mat-card-actions class="job-content-actions">
         <button mat-button color="primary" (click)="goToDetails(job.id)">See details</button>
-        <button mat-button color="warn" (click)="bookmark(job.id)">Bookmark</button>
+        <button mat-button color="warn" (click)="bookmark(job.id)">Save job</button>
       </mat-card-actions>
     </mat-card>
   </div>
@@ -25,5 +39,3 @@
     </mat-paginator>
   </div>
 </div>
-
-<app-job-details *ngIf="showJobDetails" [@slideIn]></app-job-details>

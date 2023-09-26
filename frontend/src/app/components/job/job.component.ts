@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
-import { map } from 'rxjs';
+import { filter, map } from 'rxjs';
 import { authGuard } from 'src/app/guards/auth.guard';
 import { JobData } from 'src/app/models/job-data';
 import { JobService } from 'src/app/services/job-service/job.service';
@@ -9,6 +9,7 @@ import { JobDialogComponent } from '../job-dialog/job-dialog.component';
 import { Route, Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
 import { JobDetailsComponent } from '../job-details/job-details/job-details.component';
+import { Job } from 'src/app/models/job';
 
 @Component({
   selector: 'app-job',
@@ -22,6 +23,8 @@ export class JobComponent implements OnInit {
   dataSource: JobData = null!;
   pageEvent: PageEvent = null!;
   showJobDetails: boolean = false;
+  filteredJobs: Job[]= null!;
+  isJobPoster: boolean = false;
 
 
   constructor(
@@ -34,9 +37,14 @@ export class JobComponent implements OnInit {
   ngOnInit(): void {
     this.jobService.findAll(1, 5).pipe(
       map((jobData: JobData) => {
-        this.dataSource = jobData
+        this.dataSource = jobData;
+        this.filteredJobs = this.dataSource.items;
       })
     ).subscribe()
+
+    this.authService.isJobCreator().subscribe(
+      (result) => this.isJobPoster =result
+    );
   }
 
   onPaginateChange(event: PageEvent) {
@@ -48,6 +56,7 @@ export class JobComponent implements OnInit {
     this.jobService.findAll(page, size).pipe(
       map((jobData: JobData) => {
         this.dataSource = jobData;
+        this.filteredJobs = this.dataSource.items;
       })
     )
       .subscribe();
@@ -66,6 +75,31 @@ export class JobComponent implements OnInit {
         }
       })
     ).subscribe();
+  }
+
+  filterJobs(filterOption: string) {
+
+    console.log(filterOption);
+    switch(filterOption) 
+    {
+      case "recent": {
+        this.filteredJobs = this.dataSource.items.sort((jobA, jobB) => {
+          const timeStampA = new Date(jobA.postedAtUTC).getTime();
+          const timeStampB = new Date(jobB.postedAtUTC).getTime();
+          return timeStampB - timeStampA;
+        });
+        break;
+      }
+
+      case "all": {
+        this.filteredJobs = this.dataSource.items;
+        break;
+      }
+
+      case "saved": {
+        this.filteredJobs = [];
+      }
+    }
   }
 
   goToDetails(jobId: string) {

@@ -87,10 +87,11 @@ export class JobService {
 
     paginateJobs(options: IPaginationOptions): Observable<Pagination<JobPost>> {
         return from(paginate<JobPostEntity>(this.jobPostRepository, options, {
-            relations: ['applications'],
+            relations: ['applications', 'createdBy'],
             order: { postedAtUTC: 'DESC' }
         })).pipe(
             map((jobs: Pagination<JobPost>) => {
+                console.log(jobs);
                 return jobs;
             })
         );

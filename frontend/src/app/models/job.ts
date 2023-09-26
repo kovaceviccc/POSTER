@@ -6,4 +6,5 @@ export interface Job {
     postedAtUTC: Date;
     numberOfApplicants: number;
     createdBy: string;
+    creatorId: string;
 }

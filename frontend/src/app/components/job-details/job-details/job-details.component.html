@@ -38,7 +38,12 @@
                 <h3 class="apply-title">Apply for this Job</h3>
                 <div class="file-upload">
                     <mat-label>Upload CV(pdf)</mat-label>
-                    <input type="file" (change)="onFileChange($event)" #fileupload accept=".pdf">
+                    <button mat-button (click)="onClick()">
+                        <mat-icon>cloud_upload</mat-icon>
+                    </button>
+                    
+                    <input type="file" #fileUpload id="fileUpload" name="fileUpload" (change)="onFileChange($event)" accept=".pdf" style="display: none;">
+                    <mat-label *ngIf="cvFile">{{cvFile.name}}</mat-label>
                 </div>
                 <mat-form-field class="cover-letter">
                     <mat-label>Cover Letter (Optional)</mat-label>

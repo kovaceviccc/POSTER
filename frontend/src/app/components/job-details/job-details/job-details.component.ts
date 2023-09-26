@@ -6,6 +6,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Router } from '@angular/router';
 import { map } from 'rxjs';
 import { JobDetails } from 'src/app/models/job-details';
+import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
 import { JobService } from 'src/app/services/job-service/job.service';
 
 @Component({
@@ -23,6 +24,7 @@ import { JobService } from 'src/app/services/job-service/job.service';
 })
 export class JobDetailsComponent implements OnInit, OnDestroy {
 
+  @ViewChild('fileUpload', {static: false}) fileUpload: ElementRef = null!;
   cvFile: File = null!;
   coverLetter:string = null!;
   job: JobDetails = null!;
@@ -34,7 +36,8 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<JobDetailsComponent>,
     private jobService: JobService,
     private readonly router: Router,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private authService: AuthenticationService
   ) { }
 
   ngOnInit(): void {
@@ -65,10 +68,21 @@ export class JobDetailsComponent implements OnInit, OnDestroy {
     if(fileList.length > 0) {
       this.cvFile = fileList[0];
     }
+  }
 
+
+  onClick() {
+    const fileInput = this.fileUpload.nativeElement;
+    fileInput.click();
   }
 
   onSubmit() {
+    this.authService.isAuthenticated().pipe(
+      map((result) => {
+        if(!result) return; //not authenticated
+      })
+    );
+
     
     if(!this.cvFile) return;
     this.jobService.applyForJob(this.jobId, this.cvFile, this.coverLetter).pipe(
