@@ -28,6 +28,7 @@ import { JobComponent } from './components/job/job.component';
 import { JobDialogComponent } from './components/job-dialog/job-dialog.component';
 import { JobDetailsComponent } from './components/job-details/job-details/job-details.component';
 import { TimePipePipe } from './pipes/time-pipe.pipe';
+import { CreateJobComponent } from './components/create-job/create-job/create-job.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -39,7 +40,8 @@ import { TimePipePipe } from './pipes/time-pipe.pipe';
     JobComponent,
     JobDialogComponent,
     JobDetailsComponent,
-    TimePipePipe
+    TimePipePipe,
+    CreateJobComponent
   ],
   imports: [
     BrowserModule,

@@ -5,9 +5,10 @@ import { RegisterComponent } from './components/register/register.component';
 import { UsersComponent } from './components/users/users.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { UpdateUserProfileComponent } from './components/update-user-profile/update-user-profile.component';
-import { adminGuard, authGuard } from './guards/auth.guard';
+import { adminGuard, authGuard, creatorGuard } from './guards/auth.guard';
 import { JobComponent } from './components/job/job.component';
 import { JobDetailsComponent } from './components/job-details/job-details/job-details.component';
+import { CreateJobComponent } from './components/create-job/create-job/create-job.component';
 
 const routes: Routes = [
   {
@@ -50,6 +51,11 @@ const routes: Routes = [
     path: 'job-details/:id',
     component: JobDetailsComponent,
 
+  },
+  {
+    path: 'create-job',
+    component: CreateJobComponent,
+    canActivate: [creatorGuard]
   }
 ];
 

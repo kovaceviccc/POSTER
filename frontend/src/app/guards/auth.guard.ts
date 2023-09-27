@@ -8,6 +8,7 @@ import { MatDialog } from '@angular/material/dialog';
 export const authGuard: CanActivateFn = () => isAuthenticated();
 export const adminGuard: CanActivateFn = () => isAdmin();
 export const userGuard: CanActivateFn = () => isUser();
+export const creatorGuard: CanActivateFn = () => isCreator();
 
 
 function isAuthenticated(): Observable<boolean> {
@@ -44,7 +45,6 @@ function isAdmin(): Observable<boolean> {
       if (!authenticated) router.navigate(['login']);
       return from(authService.isAdmin()).pipe(
         map((result: boolean) => {
-          console.log(result);
           if (!result) {
             const dialogRef = dialog.open(JobDialogComponent, { width: '500px', height: '200px' });
             dialogRef.afterClosed().subscribe(
@@ -73,12 +73,37 @@ function isUser(): boolean {
     router.navigate(['login']);
     return false;
   }
-
   const userId = authService.getUserId()
-
-  console.log(router)
-
   return true;
+}
+
+function isCreator(): Observable<boolean> {
+
+  const authService = inject(AuthenticationService);
+  const router = inject(Router);
+  const dialog = inject(MatDialog);
+  if (authService === null || router === null || dialog === null) return of(false);
+
+  return from(authService.isAuthenticated()).pipe(
+    switchMap((authenticated: boolean) => {
+
+      if (!authenticated) router.navigate(['login']);
+      return from(authService.isJobCreator()).pipe(
+        map((result: boolean) => {
+          if (!result) {
+            const dialogRef = dialog.open(JobDialogComponent, { width: '500px', height: '200px' });
+            dialogRef.afterClosed().subscribe(
+              (result: boolean) => {
+                if (result) router.navigate(['login']);
+              }
+            );
+          }
+          return result;
+        })
+      );
+    })
+  );
+
 }
 
 

@@ -1,4 +1,3 @@
-
 <div class="job-list-container">
   <div class="job-content">
     <div class="filter-container">
@@ -33,7 +32,7 @@
     </mat-card>
   </div>
 
-  <div class="pagination-container">
+  <div class="pagination-container" *ngIf="dataSource">
     <mat-paginator [length]="dataSource.meta.totalItems" [pageSize]="dataSource.meta.itemsPerPage"
       [pageSizeOptions]="[1,2,4,8]" (page)="pageEvent= $event; onPaginateChange($event)" showFirstLastButtons>
     </mat-paginator>
