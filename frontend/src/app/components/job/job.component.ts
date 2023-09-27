@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
-import { filter, map } from 'rxjs';
+import { Observable, filter, map } from 'rxjs';
 import { authGuard } from 'src/app/guards/auth.guard';
 import { JobData } from 'src/app/models/job-data';
 import { JobService } from 'src/app/services/job-service/job.service';
@@ -10,6 +10,10 @@ import { Route, Router } from '@angular/router';
 import { AuthenticationService } from 'src/app/services/authentication-service/authentication.service';
 import { JobDetailsComponent } from '../job-details/job-details/job-details.component';
 import { Job } from 'src/app/models/job';
+import { AppState } from 'src/state/app.state';
+import { Store } from '@ngrx/store';
+import { selectJobData, selectJobError, selectJobLoading } from 'src/store/selectors/job.selectors';
+import * as JobActions from '../../../store/actions/job.actions';
 
 @Component({
   selector: 'app-job',
@@ -19,8 +23,10 @@ import { Job } from 'src/app/models/job';
 
 export class JobComponent implements OnInit {
 
-
-  dataSource: JobData = null!;
+  loading$: Observable<boolean> = null!;
+  dataSource$: Observable<JobData | null> = null!;
+  data: JobData | null = null!;
+  errors$ : Observable<string> | any;
   pageEvent: PageEvent = null!;
   showJobDetails: boolean = false;
   filteredJobs: Job[]= null!;
@@ -31,20 +37,36 @@ export class JobComponent implements OnInit {
     private jobService: JobService,
     public dialog: MatDialog,
     private router: Router,
-    private authService: AuthenticationService
-  ) { }
+    private authService: AuthenticationService,
+    private store: Store<AppState>
+  ) {
+
+   }
 
   ngOnInit(): void {
-    this.jobService.findAll(1, 5).pipe(
-      map((jobData: JobData) => {
-        this.dataSource = jobData;
-        this.filteredJobs = this.dataSource.items;
-      })
-    ).subscribe()
+    // this.jobService.findAll(1, 5).pipe(
+    //   map((jobData: JobData) => {
+    //     this.dataSource = jobData;
+    //     this.filteredJobs = this.dataSource.items;
+    //   })
+    // ).subscribe()
+
+    
+    this.dataSource$ = this.store.select(selectJobData);
+    this.loading$ = this.store.select(selectJobLoading);
+    this.errors$ = this.store.select(selectJobError)
+    this.store.dispatch(JobActions.loadJobData({page: 1, size: 5}));
+
+    this.dataSource$.subscribe(
+      (result) => {
+        this.data = result;
+        console.log(result);
+      }
+    )
 
     this.authService.isJobCreator().subscribe(
       (result) => this.isJobPoster =result
-    );
+    );    
   }
 
   onPaginateChange(event: PageEvent) {
@@ -53,14 +75,7 @@ export class JobComponent implements OnInit {
     let size = event.pageSize;
     //TODO: add filtering by job title
     page++;
-    this.jobService.findAll(page, size).pipe(
-      map((jobData: JobData) => {
-        console.log(jobData);
-        this.dataSource = jobData;
-        this.filteredJobs = this.dataSource.items;
-      })
-    )
-      .subscribe();
+    this.store.dispatch(JobActions.loadJobData({page, size}));
   }
 
   bookmark(jobId: string) {
@@ -81,26 +96,26 @@ export class JobComponent implements OnInit {
   filterJobs(filterOption: string) {
 
     console.log(filterOption);
-    switch(filterOption) 
-    {
-      case "recent": {
-        this.filteredJobs = this.dataSource.items.sort((jobA, jobB) => {
-          const timeStampA = new Date(jobA.postedAtUTC).getTime();
-          const timeStampB = new Date(jobB.postedAtUTC).getTime();
-          return timeStampB - timeStampA;
-        });
-        break;
-      }
+    // switch(filterOption) 
+    // {
+    //   case "recent": {
+    //     this.filteredJobs = this.dataSource$.items.sort((jobA: Job, jobB: Job) => {
+    //       const timeStampA = new Date(jobA.postedAtUTC).getTime();
+    //       const timeStampB = new Date(jobB.postedAtUTC).getTime();
+    //       return timeStampB - timeStampA;
+    //     });
+    //     break;
+    //   }
 
-      case "all": {
-        this.filteredJobs = this.dataSource.items;
-        break;
-      }
+    //   case "all": {
+    //     this.filteredJobs = this.dataSource$.items;
+    //     break;
+    //   }
 
-      case "saved": {
-        this.filteredJobs = [];
-      }
-    }
+    //   case "saved": {
+    //     this.filteredJobs = [];
+    //   }
+    // }
   }
 
   goToDetails(jobId: string) {

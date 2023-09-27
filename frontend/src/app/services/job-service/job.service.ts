@@ -1,15 +1,20 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { CSP_NONCE, Injectable } from '@angular/core';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import {Injectable } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { Observable, catchError, from, map, of, throwError } from 'rxjs';
+import { CreateJobRequest } from 'src/app/models/create-job.request';
 import { JobData } from 'src/app/models/job-data';
 import { JobDetails } from 'src/app/models/job-details';
+import { AppState } from 'src/state/app.state';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JobService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(
+    private httpClient: HttpClient,
+    private store: Store<AppState>) { }
 
   findAll(page: number, size: number): Observable<JobData> {
 
@@ -48,6 +53,19 @@ export class JobService {
       }),
       catchError(err => {
         console.log("Error in job apply: ", err);
+        return of(false);
+      })
+    );
+  }
+
+  postJob(jobPostRequrest: CreateJobRequest) : Observable<boolean> {
+    return this.httpClient.post<HttpResponse<boolean>>('/api/job/create', jobPostRequrest).pipe(
+      map((response) => {
+        console.log(response);
+        return true;
+      }),
+      catchError(err => {
+        console.log("error in job Posting: ", err);
         return of(false);
       })
     );

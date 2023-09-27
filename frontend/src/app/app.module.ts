@@ -29,6 +29,10 @@ import { JobDialogComponent } from './components/job-dialog/job-dialog.component
 import { JobDetailsComponent } from './components/job-details/job-details/job-details.component';
 import { TimePipePipe } from './pipes/time-pipe.pipe';
 import { CreateJobComponent } from './components/create-job/create-job/create-job.component';
+import { StoreModule } from '@ngrx/store';
+import {jobReducer} from './../store/reducers/job.reducer';
+import { EffectsModule } from '@ngrx/effects';
+import { JobEffects } from 'src/store/affects/job.effects';
 @NgModule({
   declarations: [
     AppComponent,
@@ -61,7 +65,10 @@ import { CreateJobComponent } from './components/create-job/create-job/create-jo
     MatProgressBarModule,
     MatIconModule,
     MatDialogModule,
-    MatDividerModule
+    MatDividerModule,
+    StoreModule.forFeature('job', jobReducer),
+    StoreModule.forRoot({'job': jobReducer}),
+    EffectsModule.forRoot([JobEffects])
   ],
   providers: [
     JwtHelperService,

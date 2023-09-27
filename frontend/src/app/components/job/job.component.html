@@ -14,25 +14,27 @@
         <button mat-button (click)="filterJobs('saved')">Posted jobs</button>
       </mat-card>
     </div>
-    <mat-card class="job-card" *ngFor="let job of filteredJobs">
-      <mat-card-header>
-        <mat-card-title>{{ job.jobTitle }}</mat-card-title>
-        <mat-card-subtitle>Created by: {{job.creatorName}}</mat-card-subtitle>
-      </mat-card-header>
-
-      <mat-card-content>
-        <p>{{ job.jobDescription }}</p>
-        <p>Posted: {{ job.postedAtUTC | timePipe }}</p>
-      </mat-card-content>
-
-      <mat-card-actions class="job-content-actions">
-        <button mat-button color="primary" (click)="goToDetails(job.id)">See details</button>
-        <button mat-button color="warn" (click)="bookmark(job.id)">Save job</button>
-      </mat-card-actions>
-    </mat-card>
+    <div *ngIf="(dataSource$ | async) as jobData">
+      <mat-card class="job-card" *ngFor="let job of jobData?.items">
+        <mat-card-header>
+          <mat-card-title>{{ job.jobTitle }}</mat-card-title>
+          <mat-card-subtitle>Created by: {{job.creatorName}}</mat-card-subtitle>
+        </mat-card-header>
+  
+        <mat-card-content>
+          <p>{{ job.jobDescription }}</p>
+          <p>Posted: {{ job.postedAtUTC | timePipe }}</p>
+        </mat-card-content>
+  
+        <mat-card-actions class="job-content-actions">
+          <button mat-button color="primary" (click)="goToDetails(job.id)">See details</button>
+          <button mat-button color="warn" (click)="bookmark(job.id)">Save job</button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
   </div>
 
-  <div class="pagination-container" *ngIf="dataSource">
+  <div class="pagination-container" *ngIf="(dataSource$ | async) as dataSource">
     <mat-paginator [length]="dataSource.meta.totalItems" [pageSize]="dataSource.meta.itemsPerPage"
       [pageSizeOptions]="[1,2,4,8]" (page)="pageEvent= $event; onPaginateChange($event)" showFirstLastButtons>
     </mat-paginator>

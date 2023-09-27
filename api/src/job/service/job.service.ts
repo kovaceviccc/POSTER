@@ -12,6 +12,7 @@ import { Like, Repository, SelectQueryBuilder } from 'typeorm';
 import { JobApplicationEntity } from '../models/job-application.entity';
 import { OperationResponse } from 'src/dto/outgoing';
 import { JobPostDetails } from '../models/dto/job-post-details';
+import { createBrotliCompress } from 'zlib';
 
 @Injectable()
 export class JobService {
@@ -25,10 +26,16 @@ export class JobService {
 
         if (createJobRequest === null) return of(false);
 
-        const creator = this.userService.findOne(creatorId).pipe(
+        var creator: User;
+
+        this.userService.findOne(creatorId).pipe(
             switchMap((result: User) => {
                 return of(result)
             })
+        ).subscribe(
+            (result) => {
+                creator = result;
+            }
         );
 
         if (creator === null) return of(false);
@@ -37,6 +44,7 @@ export class JobService {
             switchMap((creator: UserEntity) => {
                 if (creator === null) return of(false);
                 const job = this.mapDTO(createJobRequest, creator);
+                console.log(job);
                 return from(this.jobPostRepository.save(job)).pipe(
                     map((result: JobPostEntity) => {
                         return result !== null;
@@ -216,15 +224,36 @@ export class JobService {
     }
 
     private mapDTO(createJobRequest: CreateJobRequest, creator: UserEntity): JobPostEntity {
+        
+        const job = new JobPostEntity();
+        job.jobTitle = createJobRequest.jobTitle;
+        job.jobDescription = createJobRequest.jobDescription;
+        job.createdBy = creator;
+        job.jobType = createJobRequest.jobType;
+        return job;
+        
+        // const { jobTitle, jobDescription, jobType } = createJobRequest;
 
-        const result: JobPostEntity = new JobPostEntity();
-        result.jobTitle = createJobRequest.jobTitle;
-        result.jobDescription = createJobRequest.jobDescription;
-        result.expiresAtUTC = createJobRequest.expiresAtUtc;
-        result.createdBy = creator;
-        return result;
+        // if (jobTitle === undefined || jobDescription === undefined || jobType === undefined) {
+        //     // Log an error or handle the case where required properties are missing.
+        //     throw new Error('Required properties are missing in CreateJobRequest.');
+        // }
+
+        // var jobPost = new JobPostEntity();
+        // console.log(createJobRequest);
+        // jobPost.jobTitle = createJobRequest.jobTitle;
+        // jobPost.jobDescription = createJobRequest.jobDescription;
+        // jobPost.jobType = createJobRequest.jobType;
+        
+        // return jobPost;
+
+        // return {
+        //     jobTitle: createJobRequest.jobTitle,
+        //     jobDescription: createJobRequest.jobDescription,
+        //     jobType: createJobRequest.jobType
+        // }
     }
-
+    
     private Map(jobPosts: JobPostEntity[]): JobPostDetails[] {
         return jobPosts.map((jobPost) => {
             const {

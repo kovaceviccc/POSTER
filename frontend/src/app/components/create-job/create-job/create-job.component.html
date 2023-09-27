@@ -1,1 +1,25 @@
-<p>create-job works!</p>
+<div class="create-job-container">
+    <h2>Create a New Job</h2>
+    <form [formGroup]="createJobForm" (ngSubmit)="onSubmit()" novalidate>
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Job Title" formControlName="jobTitle">
+            <mat-hint *ngIf="createJobForm.controls['jobTitle'].errors">Job title is required</mat-hint>
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <textarea matInput placeholder="Job Description" rows="4" [style.resize]="'none'" formControlName="jobDescription"></textarea>
+            <mat-hint *ngIf="createJobForm.controls['jobDescription'].errors">Job description is required</mat-hint>
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <input matInput placeholder="Job Location" formControlName="jobLocation">
+            <mat-hint *ngIf="createJobForm.controls['jobLocation'].errors">Job location is required</mat-hint>
+        </mat-form-field>
+        <mat-form-field class="full-width">
+            <mat-label>Job Type</mat-label>
+            <mat-select formControlName="jobType">
+                <mat-option *ngFor="let jobType of jobTypes" [value]="jobType">{{ jobType }}</mat-option>
+            </mat-select>
+            <mat-hint *ngIf="createJobForm.controls['jobType'].errors">Please choose job type</mat-hint>
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled]="!createJobForm.valid" class="full-width">Create Job</button>
+    </form>
+</div>

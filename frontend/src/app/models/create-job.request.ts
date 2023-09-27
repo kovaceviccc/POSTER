@@ -1,8 +1,8 @@
-import { JobTypeEnum } from "../job-type.enum";
+import { JobTypeEnum } from "./job-type.enum";
 
 export interface CreateJobRequest {
-    jobTitle: string;
     jobDescription: string;
     jobLocation: string;
+    jobTitle: string;
     jobType: JobTypeEnum
 }

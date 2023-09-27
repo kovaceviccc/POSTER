@@ -1,0 +1,29 @@
+.create-job-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .full-width {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  /* Remove the outline on focus for date input */
+  input[type="date"]:focus {
+    outline: none;
+  }
+  
+  /* Add some padding to the form fields */
+  mat-form-field {
+    padding: 10px;
+  }

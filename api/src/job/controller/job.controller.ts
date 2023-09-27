@@ -1,20 +1,16 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Res, Request, UseGuards, Req, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CreateJobRequest } from 'src/job/models/dto/create-job-request';
 import { Response } from 'express';
-import { JobPost } from 'src/job/models/job-post.interface';
 import { Observable, catchError, from, map, of } from 'rxjs';
 import { JobService } from '../service/job.service';
 import { RolesGuard } from 'src/auth/guards/roles-guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-guard';
 import { hasRoles } from 'src/auth/decorator/roles.decorator';
 import { User, UserRole } from 'src/user/user/models/user.interface';
-import { OperationResponse } from 'src/dto/outgoing';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptionsPDF } from 'src/const';
-import { unsubscribe } from 'diagnostics_channel';
 import { UserEntity } from 'src/user/user/models/user.entity';
-import { error } from 'console';
 import { JobPostDetails } from '../models/dto/job-post-details';
 
 
@@ -32,7 +28,6 @@ export class JobController {
         @Body() job: CreateJobRequest,
         @Request() req,
         @Res() res: Response) {
-
         const jobCreator = req.user;
         if (jobCreator === null || jobCreator === undefined) return res.status(HttpStatus.UNAUTHORIZED).send();
 
@@ -82,6 +77,7 @@ export class JobController {
         @Query('jobTitle') jobTitle: string): Observable<Pagination<JobPostDetails>> {
 
         limit = limit > 100 ? 100 : limit;
+        console.log("success");
 
         if (jobTitle === null || jobTitle === undefined) {
             return this.jobService.paginateJobs({ page, limit, route: 'http://localhost/3000/jobs/paginate' });
