@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http'
 import { Observable, map, of, switchMap } from 'rxjs';
 import { JwtHelperService } from "@auth0/angular-jwt";
 import { Router } from '@angular/router';
-
+import * as AuthActions from '../../../store/actions/auth.action';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/state/app.state';
 
 export interface User {
   id?: number;
@@ -28,12 +30,13 @@ export class AuthenticationService {
   constructor(
     private readonly httpClient: HttpClient,
     private readonly jwtHelper: JwtHelperService,
-    private readonly router: Router) { }
+    private readonly store: Store<AppState>) { }
 
   login(email: string, password: string) {
     return this.httpClient.post<any>('/api/users/login', { email, password }).pipe(
       map((token) => {
         localStorage.setItem(JWT_TOKEN, token.access_token);
+        this.store.dispatch(AuthActions.setIsLoggedIn(true));
         return token;
       })
     )
@@ -50,7 +53,9 @@ export class AuthenticationService {
 
   isAuthenticated(): Observable<boolean> {
     const token = localStorage.getItem(JWT_TOKEN);
-    return of(!this.jwtHelper.isTokenExpired(token));
+    const isTokenValid = !this.jwtHelper.isTokenExpired(token)
+    this.store.dispatch(AuthActions.setIsLoggedIn(isTokenValid));
+    return of(isTokenValid);
   }
 
   isAdmin(): Observable<boolean> {
@@ -63,9 +68,13 @@ export class AuthenticationService {
 
   isJobCreator(): Observable<boolean> {
     const token: string | null = localStorage.getItem(JWT_TOKEN);
-    if (token === null) return of(false);
+    if (token === null){
+      this.store.dispatch(AuthActions.setIsJobCreator(false));
+      return of(false);
+    } 
     const decodedToken = this.jwtHelper.decodeToken(token);
     const result = decodedToken.user.role === 'jobcreator'
+    this.store.dispatch(AuthActions.setIsJobCreator(result));
     return of(result);
   }
   getUserId(): Observable<number> {
@@ -77,9 +86,14 @@ export class AuthenticationService {
 
   logOut(): Observable<boolean> {
     const jwt = localStorage.getItem(JWT_TOKEN);
-    console.log(jwt);
-    if (jwt === null) return of(true);
+    if (jwt === null) {
+      this.store.dispatch(AuthActions.setIsLoggedIn(false)); 
+      this.store.dispatch(AuthActions.setIsJobCreator(false)); 
+      return of(true);
+    } 
     localStorage.removeItem(JWT_TOKEN);
+    this.store.dispatch(AuthActions.setIsLoggedIn(false));
+    this.store.dispatch(AuthActions.setIsJobCreator(false));
     return of(true);
   }
 

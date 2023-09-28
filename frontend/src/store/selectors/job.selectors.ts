@@ -1,8 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { JobState } from '../reducers/job.reducer';
-import { AppState } from 'src/state/app.state';
-import { JobData } from 'src/app/models/job-data';
-
 
 export const selectJobFeature = createFeatureSelector<JobState>('job')
 

@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
-import { Observable, filter, map } from 'rxjs';
+import { Observable, Subject, filter, map } from 'rxjs';
 import { authGuard } from 'src/app/guards/auth.guard';
 import { JobData } from 'src/app/models/job-data';
 import { JobService } from 'src/app/services/job-service/job.service';
@@ -21,7 +21,7 @@ import * as JobActions from '../../../store/actions/job.actions';
   styleUrls: ['./job.component.scss']
 })
 
-export class JobComponent implements OnInit {
+export class JobComponent implements OnInit, OnDestroy {
 
   loading$: Observable<boolean> = null!;
   dataSource$: Observable<JobData | null> = null!;
@@ -31,10 +31,10 @@ export class JobComponent implements OnInit {
   showJobDetails: boolean = false;
   filteredJobs: Job[]= null!;
   isJobPoster: boolean = false;
+  private unsubscribe$ = new Subject<void>();
 
 
   constructor(
-    private jobService: JobService,
     public dialog: MatDialog,
     private router: Router,
     private authService: AuthenticationService,
@@ -44,28 +44,14 @@ export class JobComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    // this.jobService.findAll(1, 5).pipe(
-    //   map((jobData: JobData) => {
-    //     this.dataSource = jobData;
-    //     this.filteredJobs = this.dataSource.items;
-    //   })
-    // ).subscribe()
 
-    
     this.dataSource$ = this.store.select(selectJobData);
     this.loading$ = this.store.select(selectJobLoading);
     this.errors$ = this.store.select(selectJobError)
     this.store.dispatch(JobActions.loadJobData({page: 1, size: 5}));
 
-    this.dataSource$.subscribe(
-      (result) => {
-        this.data = result;
-        console.log(result);
-      }
-    )
-
     this.authService.isJobCreator().subscribe(
-      (result) => this.isJobPoster =result
+      (result) => this.isJobPoster = result
     );    
   }
 
@@ -128,4 +114,8 @@ export class JobComponent implements OnInit {
     )
   }
 
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
 }

@@ -1,41 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthenticationService } from './services/authentication-service/authentication.service';
-import { Observable, from, map, of } from 'rxjs';
+import { Store } from '@ngrx/store';
+import {selectIsJobCreator, selectIsLoggedIn} from '../store/selectors/auth.selectors';
+import { Observable, Subject, map } from 'rxjs';
+import * as AuthActions from '../store/actions/auth.action';
+import { AppState } from 'src/state/app.state';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
   title = 'frontend';
-  isAuthenticated: boolean = false;
-  entries = [
-    {
-      name: 'Login',
-      link: 'login'
-    },
-    {
-      name: 'Register',
-      link: 'register'
-    },
-    {
-      name: 'Update profile',
-      link: 'update-profile'
-    }
-  ];
+  isLoggedIn$: Observable<boolean> = null!;
+  isJobCreator$: Observable<boolean> = null!;
+  private unsubscribe$ = new Subject<void>();
 
-  constructor(private router: Router, private authService: AuthenticationService) {
-
-  }
+  constructor(
+    private router: Router,
+    private authService: AuthenticationService,
+    private store: Store<AppState>) {}
+  
   ngOnInit(): void {
-    this.authService.isAuthenticated().subscribe((result: boolean) => {
-      this.isAuthenticated = result;
-    });
-  }
 
+    this.authService.isAuthenticated().pipe(
+      map((result) => {
+        this.store.dispatch(AuthActions.setIsLoggedIn(result))
+      })
+    );
+    this.store.dispatch(AuthActions.checkIsLoggedIn());
+    this.store.dispatch(AuthActions.checkIsJobCreator());
+    this.isLoggedIn$ = this.store.select(selectIsLoggedIn);
+    this.isJobCreator$ = this.store.select(selectIsJobCreator);
+
+  }
 
   navigateTo(value: string) {
     this.router.navigate(['../', value]);
@@ -43,9 +44,13 @@ export class AppComponent implements OnInit {
 
   logOut(): void {
     this.authService.logOut().subscribe((result: boolean) => {
-      this.isAuthenticated = result;
       if (result) this.router.navigate(['']);
     });
 
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }
