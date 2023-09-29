@@ -105,8 +105,7 @@ export class JobComponent implements OnInit, OnDestroy {
   }
 
   goToDetails(jobId: string) {
-    // this.router.navigate(['job-details', jobId]);
-    const dialogRef = this.dialog.open(JobDetailsComponent, { data: jobId, exitAnimationDuration: 400, enterAnimationDuration: 500, width: '80%', height: '80%' },);
+    const dialogRef = this.dialog.open(JobDetailsComponent, { data: jobId, exitAnimationDuration: 400, enterAnimationDuration: 500, width: '90%', height: '90%' },);
     dialogRef.afterClosed().subscribe(
       (result: boolean) => {
         console.log(result);

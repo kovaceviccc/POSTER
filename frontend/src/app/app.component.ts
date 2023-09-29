@@ -50,21 +50,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isLoggedIn$ = this.store.select(selectIsLoggedIn);
     this.isJobCreator$ = this.store.select(selectIsJobCreator);
     this.isAdmin$ = this.store.select(selectIsAdmin);
-
-    this.isJobCreator$.subscribe(
-      result => console.log("jobcreator:",result)
-    );
-
-    this.isLoggedIn$.subscribe(
-      result => console.log("loggedIn: ",result)
-    );
-
-    this.isAdmin$.subscribe(
-      (result) => {
-        console.log("admin: ",result);
-      }
-    )
-
   }
 
   navigateTo(value: string) {

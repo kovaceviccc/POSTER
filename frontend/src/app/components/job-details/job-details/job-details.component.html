@@ -4,7 +4,7 @@
     </button>
 </mat-card-header>
 
-<mat-card class="job-card">
+<mat-card class="job-card" *ngIf="job">
     <mat-card-content class="job-content">
         <div class="job-details-left">
             <h2 class="job-title">{{job.jobTitle}}</h2>
