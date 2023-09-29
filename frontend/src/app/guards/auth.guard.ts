@@ -10,7 +10,6 @@ export const adminGuard: CanActivateFn = () => isAdmin();
 export const userGuard: CanActivateFn = () => isUser();
 export const creatorGuard: CanActivateFn = () => isCreator();
 
-
 function isAuthenticated(): Observable<boolean> {
 
   const authService = inject(AuthenticationService);
