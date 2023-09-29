@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthenticationService } from './services/authentication-service/authentication.service';
 import { Store } from '@ngrx/store';
-import {selectIsJobCreator, selectIsLoggedIn} from '../store/selectors/auth.selectors';
+import {selectIsJobCreator, selectIsLoggedIn, selectIsAdmin} from '../store/selectors/auth.selectors';
 import { Observable, Subject, map } from 'rxjs';
 import * as AuthActions from '../store/actions/auth.action';
 import { AppState } from 'src/state/app.state';
@@ -17,6 +17,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'frontend';
   isLoggedIn$: Observable<boolean> = null!;
   isJobCreator$: Observable<boolean> = null!;
+  isAdmin$: Observable<boolean> = null!;
   private unsubscribe$ = new Subject<void>();
 
   constructor(
@@ -31,10 +32,38 @@ export class AppComponent implements OnInit, OnDestroy {
         this.store.dispatch(AuthActions.setIsLoggedIn(result))
       })
     );
+
+    this.authService.isAdmin().pipe(
+      map((result) => {
+        this.store.dispatch(AuthActions.setIsAdmin(result));
+      })
+    );
+
+    this.authService.isJobCreator().pipe(
+      map((result) => {
+        this.store.dispatch(AuthActions.setIsJobCreator(result));
+      })
+    );
     this.store.dispatch(AuthActions.checkIsLoggedIn());
     this.store.dispatch(AuthActions.checkIsJobCreator());
+    this.store.dispatch(AuthActions.checkIsAdmin());
     this.isLoggedIn$ = this.store.select(selectIsLoggedIn);
     this.isJobCreator$ = this.store.select(selectIsJobCreator);
+    this.isAdmin$ = this.store.select(selectIsAdmin);
+
+    this.isJobCreator$.subscribe(
+      result => console.log("jobcreator:",result)
+    );
+
+    this.isLoggedIn$.subscribe(
+      result => console.log("loggedIn: ",result)
+    );
+
+    this.isAdmin$.subscribe(
+      (result) => {
+        console.log("admin: ",result);
+      }
+    )
 
   }
 

@@ -4,8 +4,8 @@
         <div class="right-buttons">
             <button mat-flat-button routerLink="create-job" *ngIf="(isJobCreator$ | async)" class="toolbar-button">Create job</button>
             <button mat-flat-button routerLink="" class="toolbar-button">Browse jobs</button>
-            <button mat-flat-button routerLink="users" class="toolbar-button">Users</button>
-            <button mat-flat-button routerLink="admin" class="toolbar-button">Admin</button>
+            <button mat-flat-button routerLink="users" *ngIf="(isAdmin$ | async)" class="toolbar-button">Users</button>
+            <button mat-flat-button routerLink="admin" *ngIf="(isAdmin$ | async)" class="toolbar-button">Admin</button>
             <button mat-flat-button routerLink="login" *ngIf="!(isLoggedIn$ | async)" class="toolbar-button">Login</button>
             <button mat-flat-button routerLink="register" *ngIf="!(isLoggedIn$ | async)"
                 class="toolbar-button">Register</button>

@@ -60,9 +60,13 @@ export class AuthenticationService {
 
   isAdmin(): Observable<boolean> {
     const token: string | null = localStorage.getItem(JWT_TOKEN);
-    if (token === null) return of(false);
+    if (token === null) {
+      this.store.dispatch(AuthActions.setIsAdmin(false));
+      return of(false);
+    } 
     const decodedToken = this.jwtHelper.decodeToken(token);
     const result = decodedToken.user.role === 'admin'
+    this.store.dispatch(AuthActions.setIsAdmin(result));
     return of(result);
   }
 
@@ -86,14 +90,14 @@ export class AuthenticationService {
 
   logOut(): Observable<boolean> {
     const jwt = localStorage.getItem(JWT_TOKEN);
-    if (jwt === null) {
-      this.store.dispatch(AuthActions.setIsLoggedIn(false)); 
-      this.store.dispatch(AuthActions.setIsJobCreator(false)); 
-      return of(true);
-    } 
-    localStorage.removeItem(JWT_TOKEN);
+
+    if (jwt !== null) {
+      localStorage.removeItem(JWT_TOKEN);
+    }
+
     this.store.dispatch(AuthActions.setIsLoggedIn(false));
     this.store.dispatch(AuthActions.setIsJobCreator(false));
+    this.store.dispatch(AuthActions.setIsAdmin(false));
     return of(true);
   }
 

@@ -13,7 +13,9 @@ import { Job } from 'src/app/models/job';
 import { AppState } from 'src/state/app.state';
 import { Store } from '@ngrx/store';
 import { selectJobData, selectJobError, selectJobLoading } from 'src/store/selectors/job.selectors';
+import * as AuthSelector from 'src/store/selectors/auth.selectors';
 import * as JobActions from '../../../store/actions/job.actions';
+import * as AuthActions from '../../../store/actions/auth.action';
 
 @Component({
   selector: 'app-job',
@@ -30,7 +32,7 @@ export class JobComponent implements OnInit, OnDestroy {
   pageEvent: PageEvent = null!;
   showJobDetails: boolean = false;
   filteredJobs: Job[]= null!;
-  isJobPoster: boolean = false;
+  isJobCreator$: Observable<boolean> =null!;
   private unsubscribe$ = new Subject<void>();
 
 
@@ -47,12 +49,10 @@ export class JobComponent implements OnInit, OnDestroy {
 
     this.dataSource$ = this.store.select(selectJobData);
     this.loading$ = this.store.select(selectJobLoading);
-    this.errors$ = this.store.select(selectJobError)
+    this.errors$ = this.store.select(selectJobError);
+    this.isJobCreator$ = this.store.select(AuthSelector.selectIsJobCreator);
     this.store.dispatch(JobActions.loadJobData({page: 1, size: 5}));
-
-    this.authService.isJobCreator().subscribe(
-      (result) => this.isJobPoster = result
-    );    
+    this.store.dispatch(AuthActions.checkIsJobCreator());
   }
 
   onPaginateChange(event: PageEvent) {

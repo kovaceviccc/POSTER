@@ -36,6 +36,15 @@ export class AuthEffects {
         )
     );
 
-    
-
+    checkIsAdmin$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(AuthActions.checkIsAdmin),
+            switchMap(() => 
+                this.authService.isAdmin().pipe(
+                    map((isAdmin: boolean) => AuthActions.setIsAdmin(isAdmin)),
+                    catchError(() => of(AuthActions.setIsAdmin(false)))
+                )
+            )
+        )
+    );
 }

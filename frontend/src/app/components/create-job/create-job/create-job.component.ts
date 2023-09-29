@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { catchError, map } from 'rxjs';
 import { JobTypeEnum } from 'src/app/models/job-type.enum';
 import { JobService } from 'src/app/services/job-service/job.service';
+import { JobCreatedDialogComponent } from '../../job-created-dialog/job-created-dialog.component';
 
 @Component({
   selector: 'app-create-job',
@@ -16,7 +18,9 @@ export class CreateJobComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private jobService: JobService) {}
+    private jobService: JobService,
+    private dialog: MatDialog)
+  {}
 
 
 
@@ -44,7 +48,10 @@ export class CreateJobComponent implements OnInit {
 
     this.jobService.postJob(this.createJobForm.value).pipe(
       map((success) => {
-        if(success) console.log("YOu just posted a job");
+        if(success) {
+          this.dialog.open(JobCreatedDialogComponent, {data: success, exitAnimationDuration: 400, enterAnimationDuration: 500, width: '50%', height: '40%' });
+          this.createJobForm.reset();
+        }
       })
     ).subscribe();
   }

@@ -34,6 +34,7 @@ import {jobReducer} from './../store/reducers/job.reducer';
 import { EffectsModule } from '@ngrx/effects';
 import { JobEffects } from 'src/store/effects/job.effects';
 import { authReducer } from 'src/store/reducers/auth.reducer';
+import { JobCreatedDialogComponent } from './components/job-created-dialog/job-created-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,7 +47,8 @@ import { authReducer } from 'src/store/reducers/auth.reducer';
     JobDialogComponent,
     JobDetailsComponent,
     TimePipePipe,
-    CreateJobComponent
+    CreateJobComponent,
+    JobCreatedDialogComponent
   ],
   imports: [
     BrowserModule,

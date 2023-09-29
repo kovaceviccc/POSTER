@@ -1,0 +1,10 @@
+
+<mat-dialog-content class="dialog-container">
+    <h2 class="mat-h2">{{(success ? createdJobSucceess : createdJobFailed)}}</h2>
+    <mat-card-header>
+        <button mat-icon-button class="close-button" (click)="onActionClick()">
+            <mat-icon>check_circle_outline</mat-icon>
+        </button>
+    </mat-card-header>
+</mat-dialog-content>
+
