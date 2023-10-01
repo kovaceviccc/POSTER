@@ -12,7 +12,6 @@ import { Like, Repository, SelectQueryBuilder } from 'typeorm';
 import { JobApplicationEntity } from '../models/job-application.entity';
 import { OperationResponse } from 'src/dto/outgoing';
 import { JobPostDetails } from '../models/dto/job-post-details';
-import { createBrotliCompress } from 'zlib';
 
 @Injectable()
 export class JobService {

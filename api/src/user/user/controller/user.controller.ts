@@ -13,7 +13,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { extname, join } from 'path';
 import { UpdateResult } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
-import {multerOptionsImages} from 'src/const';
+import { multerOptionsImages } from 'src/const';
+import { RefreshTokenRequest } from 'src/dto/outgoing';
 
 
 @Controller('users')
@@ -39,8 +40,8 @@ export class UserController {
     @Post('login')
     login(@Body() loginRequest: LoginRequestDTO): Observable<any> {
         return this.userService.login(loginRequest.email, loginRequest.password).pipe(
-            map((access_token: string) => {
-                return { access_token: access_token };
+            map((access_token) => {
+                return { access_token: access_token.jwtToken };
             })
         )
     }
@@ -167,6 +168,18 @@ export class UserController {
 
         return of(res.sendFile(join(process.cwd(), 'uploads/profileimages/' + imagename))).pipe(
             catchError((error) => of(res.status(HttpStatus.NOT_FOUND).send()))
+        );
+    }
+
+    @Put('refresh-token')
+    refreshTokens(@Body() refreshTokenRequest: RefreshTokenRequest, @Res() res: Response) {
+        return from(this.userService.refreshTokens(refreshTokenRequest.jwtToken, refreshTokenRequest.refreshToken)).pipe(
+            map((result) => {
+
+                if (!result) return res.status(HttpStatus.BAD_REQUEST).send();
+
+                return res.status(HttpStatus.OK).send(result);
+            })
         );
     }
 }

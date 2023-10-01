@@ -2,6 +2,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from '../authentication-service/authentication.service';
 import { Observable, catchError, map, tap, throwError } from 'rxjs';
+import { AppState } from 'src/state/app.state';
+import { Store } from '@ngrx/store';
+import * as AuthActions from '../../../store/actions/auth.action';
 
 export interface UserData {
   items: User[],
@@ -25,7 +28,9 @@ export interface UserData {
 })
 export class UserService {
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(
+    private httpClient: HttpClient,
+    private readonly store: Store<AppState>) { }
 
   findById(id: number): Observable<User> {
     return this.httpClient.get('/api/users/' + id).pipe(
@@ -35,7 +40,10 @@ export class UserService {
 
   getProfileData(): Observable<User> {
     return this.httpClient.get('/api/users/get/profile').pipe(
-      map((user: User) => user)
+      map((user: User) => {
+        this.store.dispatch(AuthActions.setUserProfile(user));
+        return user
+      })
     );
   }
 

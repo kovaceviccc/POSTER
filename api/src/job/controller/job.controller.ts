@@ -77,7 +77,6 @@ export class JobController {
         @Query('jobTitle') jobTitle: string): Observable<Pagination<JobPostDetails>> {
 
         limit = limit > 100 ? 100 : limit;
-        console.log("success");
 
         if (jobTitle === null || jobTitle === undefined) {
             return this.jobService.paginateJobs({ page, limit, route: 'http://localhost/3000/jobs/paginate' });
@@ -119,13 +118,13 @@ export class JobController {
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file', multerOptionsPDF))
     applyForJob(
-        @UploadedFile() file: Express.Multer.File ,
-        @Param('jobId') jobId:string,
+        @UploadedFile() file: Express.Multer.File,
+        @Param('jobId') jobId: string,
         @Body() coverLetter: string,
         @Request() req,
-        @Res() res: Response) : Observable<Response>{
+        @Res() res: Response): Observable<Response> {
 
-        if(file === null || file === undefined)
+        if (file === null || file === undefined)
             return of(res.status(HttpStatus.BAD_REQUEST).send("CV is missing"));
 
         const user: UserEntity = req.user;

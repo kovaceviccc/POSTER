@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import * as AuthActions from '../../../store/actions/auth.action';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/state/app.state';
+import { UserService } from '../user-service/user.service';
 
 export interface User {
   id?: number;
@@ -30,13 +31,15 @@ export class AuthenticationService {
   constructor(
     private readonly httpClient: HttpClient,
     private readonly jwtHelper: JwtHelperService,
-    private readonly store: Store<AppState>) { }
+    private readonly store: Store<AppState>,
+    private readonly userService: UserService) { }
 
   login(email: string, password: string) {
     return this.httpClient.post<any>('/api/users/login', { email, password }).pipe(
       map((token) => {
         localStorage.setItem(JWT_TOKEN, token.access_token);
         this.store.dispatch(AuthActions.setIsLoggedIn(true));
+        this.store.dispatch(AuthActions.getUserProfile());
         return token;
       })
     )
@@ -55,6 +58,7 @@ export class AuthenticationService {
     const token = localStorage.getItem(JWT_TOKEN);
     const isTokenValid = !this.jwtHelper.isTokenExpired(token)
     this.store.dispatch(AuthActions.setIsLoggedIn(isTokenValid));
+    this.store.dispatch(AuthActions.getUserProfile());
     return of(isTokenValid);
   }
 
@@ -63,7 +67,7 @@ export class AuthenticationService {
     if (token === null) {
       this.store.dispatch(AuthActions.setIsAdmin(false));
       return of(false);
-    } 
+    }
     const decodedToken = this.jwtHelper.decodeToken(token);
     const result = decodedToken.user.role === 'admin'
     this.store.dispatch(AuthActions.setIsAdmin(result));
@@ -72,10 +76,10 @@ export class AuthenticationService {
 
   isJobCreator(): Observable<boolean> {
     const token: string | null = localStorage.getItem(JWT_TOKEN);
-    if (token === null){
+    if (token === null) {
       this.store.dispatch(AuthActions.setIsJobCreator(false));
       return of(false);
-    } 
+    }
     const decodedToken = this.jwtHelper.decodeToken(token);
     const result = decodedToken.user.role === 'jobcreator'
     this.store.dispatch(AuthActions.setIsJobCreator(result));
@@ -98,6 +102,7 @@ export class AuthenticationService {
     this.store.dispatch(AuthActions.setIsLoggedIn(false));
     this.store.dispatch(AuthActions.setIsJobCreator(false));
     this.store.dispatch(AuthActions.setIsAdmin(false));
+    this.store.dispatch(AuthActions.setUserProfile(null));
     return of(true);
   }
 

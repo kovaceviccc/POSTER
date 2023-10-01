@@ -1,14 +1,19 @@
 import { inject } from '@angular/core';
-import { ActivatedRoute, CanActivateFn, Router } from '@angular/router';
-import { AuthenticationService } from '../services/authentication-service/authentication.service';
+import { ActivatedRoute, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
+import { AuthenticationService, User } from '../services/authentication-service/authentication.service';
 import { Observable, catchError, from, map, of, switchMap } from 'rxjs';
 import { JobDialogComponent } from '../components/job-dialog/job-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { AppState } from 'src/state/app.state';
+import { Store } from '@ngrx/store';
+import * as AuthActions from '../../store/actions/auth.action';
+import { selectUserProfile } from '../../store/selectors/auth.selectors';
 
 export const authGuard: CanActivateFn = () => isAuthenticated();
 export const adminGuard: CanActivateFn = () => isAdmin();
 export const userGuard: CanActivateFn = () => isUser();
 export const creatorGuard: CanActivateFn = () => isCreator();
+export const userDataNotNullGuard: CanActivateFn = () => userDataNotNull();
 
 function isAuthenticated(): Observable<boolean> {
 
@@ -102,21 +107,22 @@ function isCreator(): Observable<boolean> {
       );
     })
   );
-
 }
 
+function userDataNotNull(): Observable<boolean> {
 
-// export const adminGuard: CanActivateFn = () => {
+  const store = inject(Store<AppState>);
+  const router = inject(Router);
+  if (store === null) return of(false);
 
-//   const authService = inject(AuthenticationService);
-//   const router = inject(Router);
-
-//   if(authService === null || router === null) return false;
-
-//   if(!authService.isAuthenticated()) {
-
-//     router.navigate(['login']);
-//     return false;
-//   }
-
-// };
+  return store.select(selectUserProfile).pipe(
+    map(user => {
+      if (user === null) router.navigate(['404NotFound]']);
+      return user !== null
+    }),
+    catchError(() => {
+      router.navigate(['404NotFound]'])
+      return of(false)
+    })
+  );
+}

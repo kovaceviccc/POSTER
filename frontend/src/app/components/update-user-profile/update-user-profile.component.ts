@@ -1,9 +1,13 @@
 import { HttpErrorResponse, HttpEvent, HttpEventType } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { catchError, map, of, switchMap, tap } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { Observable, ObservableNotification, catchError, map, of, switchMap, tap } from 'rxjs';
 import { AuthenticationService, User } from 'src/app/services/authentication-service/authentication.service';
 import { UserService } from 'src/app/services/user-service/user.service';
+import { AppState } from 'src/state/app.state';
+import { selectUserProfile } from '../../../store/selectors/auth.selectors';
+import * as AuthActions from '../../../store/actions/auth.action';
 
 
 export interface File {
@@ -21,17 +25,21 @@ export class UpdateUserProfileComponent implements OnInit {
 
   @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef = null!;
 
-  user: User = null!;
   form: FormGroup = null!;
   file: File = null!;
+  userProfile$: Observable<User | null> = null!;
 
   constructor(
     private authService: AuthenticationService,
     private formBuilder: FormBuilder,
-    private userService: UserService
+    private userService: UserService,
+    private readonly store: Store<AppState>
   ) { }
 
   ngOnInit(): void {
+
+    this.store.dispatch(AuthActions.getUserProfile());
+    this.userProfile$ = this.store.select(selectUserProfile);
 
     this.file = {
       data: null,
@@ -49,22 +57,18 @@ export class UpdateUserProfileComponent implements OnInit {
       }
     );
 
-    this.authService.getUserId().pipe(
-      switchMap((id: number) => {
-        return this.userService.getProfileData().pipe(
-          tap((user: User) => {
-            this.user = user;
-            this.form.patchValue({
-              id: user.id,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              userName: user.userName,
-              profileImage: user.profileImage
-            });
-          })
-        );
-      })
-    ).subscribe();
+    this.userProfile$.subscribe(
+      result => {
+        console.log(result);
+        this.form.patchValue({
+          id: result?.id,
+          firstName: result?.firstName,
+          lastName: result?.lastName,
+          userName: result?.userName,
+          profileImage: result?.profileImage
+        });
+      }
+    );
   }
 
   onClick() {

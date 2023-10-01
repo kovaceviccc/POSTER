@@ -1,11 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthenticationService } from './services/authentication-service/authentication.service';
+import { AuthenticationService, User } from './services/authentication-service/authentication.service';
 import { Store } from '@ngrx/store';
-import {selectIsJobCreator, selectIsLoggedIn, selectIsAdmin} from '../store/selectors/auth.selectors';
+import { selectIsJobCreator, selectIsLoggedIn, selectIsAdmin } from '../store/selectors/auth.selectors';
 import { Observable, Subject, map } from 'rxjs';
 import * as AuthActions from '../store/actions/auth.action';
 import { AppState } from 'src/state/app.state';
+import { UserService } from './services/user-service/user.service';
 
 @Component({
   selector: 'app-root',
@@ -23,16 +24,21 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private authService: AuthenticationService,
-    private store: Store<AppState>) {}
-  
+    private readonly userService: UserService,
+    private store: Store<AppState>) { }
+
   ngOnInit(): void {
 
     this.authService.isAuthenticated().pipe(
       map((result) => {
         this.store.dispatch(AuthActions.setIsLoggedIn(result))
+        this.userService.getProfileData().pipe(
+          map((result) => {
+            this.store.dispatch(AuthActions.setUserProfile(result));
+          })
+        )
       })
     );
-
     this.authService.isAdmin().pipe(
       map((result) => {
         this.store.dispatch(AuthActions.setIsAdmin(result));
@@ -44,12 +50,25 @@ export class AppComponent implements OnInit, OnDestroy {
         this.store.dispatch(AuthActions.setIsJobCreator(result));
       })
     );
+
+
+
     this.store.dispatch(AuthActions.checkIsLoggedIn());
     this.store.dispatch(AuthActions.checkIsJobCreator());
     this.store.dispatch(AuthActions.checkIsAdmin());
+    this.store.dispatch(AuthActions.getUserProfile());
     this.isLoggedIn$ = this.store.select(selectIsLoggedIn);
     this.isJobCreator$ = this.store.select(selectIsJobCreator);
     this.isAdmin$ = this.store.select(selectIsAdmin);
+
+    this.isLoggedIn$.subscribe(
+      (result) => {
+        console.log("IsLoggedIn: ", result);
+        if (result) {
+          this.store.dispatch(AuthActions.getUserProfile());
+        }
+      }
+    );
   }
 
   navigateTo(value: string) {

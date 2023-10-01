@@ -5,7 +5,7 @@ import { RegisterComponent } from './components/register/register.component';
 import { UsersComponent } from './components/users/users.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
 import { UpdateUserProfileComponent } from './components/update-user-profile/update-user-profile.component';
-import { adminGuard, authGuard, creatorGuard } from './guards/auth.guard';
+import { adminGuard, authGuard, creatorGuard, userDataNotNullGuard } from './guards/auth.guard';
 import { JobComponent } from './components/job/job.component';
 import { JobDetailsComponent } from './components/job-details/job-details/job-details.component';
 import { CreateJobComponent } from './components/create-job/create-job/create-job.component';
@@ -41,7 +41,7 @@ const routes: Routes = [
   {
     path: 'update-profile',
     component: UpdateUserProfileComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, userDataNotNullGuard]
   },
   {
     path: '',

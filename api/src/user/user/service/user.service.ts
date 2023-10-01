@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../models/user.entity';
 import { Like, Repository, UpdateResult } from 'typeorm';
@@ -9,6 +9,9 @@ import { paginate, Pagination, IPaginationOptions } from 'nestjs-typeorm-paginat
 import { RegisterRequestDTO } from '../models/DTO/Request/RegisterRequestDTO';
 import * as fs from 'fs/promises'; // 
 import { FailedToRemoveResourceException } from 'src/Errors/FailedToRemoveResourceException';
+import { decode } from 'jsonwebtoken';
+
+
 
 
 @Injectable()
@@ -125,17 +128,36 @@ export class UserService {
         return from(this.userRepository.update(id, user))
     }
 
-    login(email: string, password: string): Observable<string> {
+    login(email: string, password: string): Observable<{ jwtToken: string, refreshToken: string }> {
         return this.validateUser(email, password).pipe(
             switchMap((user: User) => {
 
                 if (user) {
-                    return this.authService.generateJwt(user);
+                    return this.authService.generateTokens(user);
                 } else {
-                    return "Invalid credentials";
+                    return;
                 }
             })
         )
+    }
+
+    refreshTokens(jwtToken: string, refreshToken: string): Observable<{ jwtToken: string, refreshToken: string }> {
+
+        var jwtDecoded: any = decode(jwtToken);
+        const userId = jwtDecoded.user.id; //extract userId from jwtToken
+
+        return from(this.userRepository.findOne({
+            where: { id: userId }
+        })
+        ).pipe(
+            switchMap((user: User) => {
+
+                if (!user) throw new BadRequestException();
+
+                return this.authService.refreshTokens(user, jwtToken, refreshToken)
+            })
+        )
+
     }
 
     validateUser(email: string, password: string): Observable<User> {
@@ -164,7 +186,6 @@ export class UserService {
 
         if (!this.imageExists(fullImagePath)) return of(true);
 
-        console.log(fullImagePath);
         try {
             fs.unlink(fullImagePath)
             return of(true);
@@ -173,7 +194,7 @@ export class UserService {
         }
     }
 
-    
+
 
 
     private MapUserDTO(request: RegisterRequestDTO, passwordHash: string): UserEntity {

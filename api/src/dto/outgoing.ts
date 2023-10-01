@@ -5,5 +5,10 @@ export type OperationResponse = {
 };
 
 export type InsertionResponse = {
-    
+
+}
+
+export type RefreshTokenRequest = {
+    jwtToken: string;
+    refreshToken: string;
 }
