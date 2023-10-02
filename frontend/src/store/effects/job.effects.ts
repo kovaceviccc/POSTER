@@ -9,15 +9,14 @@ import { JobData } from 'src/app/models/job-data';
 @Injectable()
 export class JobEffects {
   constructor(
-    private actions$: Actions, 
-    private jobService: JobService) {}
+    private actions$: Actions,
+    private jobService: JobService) { }
 
   loadJobData$ = createEffect(() =>
     this.actions$.pipe(
       ofType(JobActions.loadJobData),
       switchMap((action) =>
         this.jobService.findAll(action.page, action.size).pipe(
-          tap((result) => result),
           map((jobData: JobData) => JobActions.loadJobDataSuccess({ jobData })),
           catchError((error) => of(JobActions.loadJobDataFailure({ error })))
         )

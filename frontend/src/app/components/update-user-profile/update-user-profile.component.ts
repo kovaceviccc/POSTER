@@ -33,13 +33,20 @@ export class UpdateUserProfileComponent implements OnInit {
     private authService: AuthenticationService,
     private formBuilder: FormBuilder,
     private userService: UserService,
-    private readonly store: Store<AppState>
+    private store: Store<AppState>
   ) { }
 
   ngOnInit(): void {
 
-    this.store.dispatch(AuthActions.getUserProfile());
     this.userProfile$ = this.store.select(selectUserProfile);
+    this.store.dispatch(AuthActions.loadUserData());
+
+
+    this.userService.getProfileData().pipe(
+      map((result) => {
+        this.store.dispatch(AuthActions.loadUserDataSuccess(result));
+      })
+    );
 
     this.file = {
       data: null,
@@ -59,7 +66,6 @@ export class UpdateUserProfileComponent implements OnInit {
 
     this.userProfile$.subscribe(
       result => {
-        console.log(result);
         this.form.patchValue({
           id: result?.id,
           firstName: result?.firstName,

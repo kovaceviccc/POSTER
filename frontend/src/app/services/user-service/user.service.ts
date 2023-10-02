@@ -41,8 +41,11 @@ export class UserService {
   getProfileData(): Observable<User> {
     return this.httpClient.get('/api/users/get/profile').pipe(
       map((user: User) => {
-        this.store.dispatch(AuthActions.setUserProfile(user));
         return user
+      }),
+      catchError((err) => {
+        console.log(err);
+        throw new Error(err);
       })
     );
   }

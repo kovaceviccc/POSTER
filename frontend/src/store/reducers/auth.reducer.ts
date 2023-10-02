@@ -1,6 +1,8 @@
-import { createReducer, on } from "@ngrx/store";
-import { setIsAdmin, setIsJobCreator, setIsLoggedIn, setUserProfile } from "../actions/auth.action";
+import { Action, createReducer, on } from "@ngrx/store";
+import { setIsAdmin, setIsJobCreator, setIsLoggedIn, loadUserDataSuccess } from "../actions/auth.action";
 import { User } from "src/app/services/authentication-service/authentication.service";
+import { JobState } from "./job.reducer";
+
 
 export interface AuthState {
     isLoggedIn: boolean;
@@ -21,5 +23,9 @@ export const authReducer = createReducer(
     on(setIsLoggedIn, (state, { isLoggedIn }) => ({ ...state, isLoggedIn })),
     on(setIsJobCreator, (state, { isJobCreator }) => ({ ...state, isJobCreator })),
     on(setIsAdmin, (state, { isAdmin }) => ({ ...state, isAdmin })),
-    on(setUserProfile, (state, { userProfile }) => ({ ...state, userProfile }))
+    on(loadUserDataSuccess, (state, { userProfile }) => ({ ...state, userProfile }))
 );
+
+export function reducer(state: AuthState, action: Action) {
+    return authReducer(state, action);
+}

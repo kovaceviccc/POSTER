@@ -30,11 +30,12 @@ import { JobDetailsComponent } from './components/job-details/job-details/job-de
 import { TimePipePipe } from './pipes/time-pipe.pipe';
 import { CreateJobComponent } from './components/create-job/create-job/create-job.component';
 import { Store, StoreModule } from '@ngrx/store';
-import {jobReducer} from './../store/reducers/job.reducer';
+import { jobReducer } from './../store/reducers/job.reducer';
 import { EffectsModule } from '@ngrx/effects';
 import { JobEffects } from 'src/store/effects/job.effects';
 import { authReducer } from 'src/store/reducers/auth.reducer';
 import { JobCreatedDialogComponent } from './components/job-created-dialog/job-created-dialog.component';
+import { AuthEffects } from 'src/store/effects/auth.effects';
 @NgModule({
   declarations: [
     AppComponent,
@@ -70,10 +71,10 @@ import { JobCreatedDialogComponent } from './components/job-created-dialog/job-c
     MatDialogModule,
     MatDividerModule,
     StoreModule.forFeature('job', jobReducer),
-    StoreModule.forRoot({'job': jobReducer}),
+    StoreModule.forRoot({ 'job': jobReducer }),
     StoreModule.forFeature('auth', authReducer),
-    StoreModule.forRoot({'auth' : authReducer}),
-    EffectsModule.forRoot([JobEffects])
+    StoreModule.forRoot({ 'auth': authReducer }),
+    EffectsModule.forRoot([JobEffects, AuthEffects])
   ],
   providers: [
     JwtHelperService,

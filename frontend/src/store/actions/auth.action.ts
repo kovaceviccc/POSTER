@@ -10,6 +10,5 @@ export const setIsJobCreator = createAction('[Auth] Set Is Job Creator', (isJobC
 export const checkIsAdmin = createAction('[Auth] Check Is Admin');
 export const setIsAdmin = createAction('[Auth] Set Is Admin', (isAdmin: boolean) => ({ isAdmin }));
 
-export const getUserProfile = createAction('[Auth] Get User Profile');
-export const setUserProfile = createAction('[Auth] Get User Profile', (userProfile: User | null) => ({ userProfile }));
-export const resetUserProfile = createAction('[Auth Reset User Proflie]');
+export const loadUserData = createAction('[Auth] Load User Data');
+export const loadUserDataSuccess = createAction('[Auth] Get User Profile', (userProfile: User | null) => ({ userProfile }));

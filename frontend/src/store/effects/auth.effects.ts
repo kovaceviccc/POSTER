@@ -50,14 +50,13 @@ export class AuthEffects {
         )
     );
 
-    getUserProfile$ = createEffect(() =>
+    loadJobData$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(AuthActions.getUserProfile),
+            ofType(AuthActions.loadUserData),
             switchMap(() =>
                 this.userService.getProfileData().pipe(
-                    tap((user) => user),
-                    map((user) => AuthActions.setUserProfile(user)),
-                    catchError(() => of(AuthActions.setUserProfile(null)))
+                    map((user: User) => AuthActions.loadUserDataSuccess(user)),
+                    catchError(() => of(AuthActions.loadUserDataSuccess(null)))
                 )
             )
         )

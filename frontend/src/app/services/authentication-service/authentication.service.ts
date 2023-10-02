@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { Observable, map, of, switchMap } from 'rxjs';
 import { JwtHelperService } from "@auth0/angular-jwt";
-import { Router } from '@angular/router';
 import * as AuthActions from '../../../store/actions/auth.action';
 import { Store } from '@ngrx/store';
 import { AppState } from 'src/state/app.state';
@@ -39,7 +38,9 @@ export class AuthenticationService {
       map((token) => {
         localStorage.setItem(JWT_TOKEN, token.access_token);
         this.store.dispatch(AuthActions.setIsLoggedIn(true));
-        this.store.dispatch(AuthActions.getUserProfile());
+        this.store.dispatch(AuthActions.checkIsAdmin());
+        this.store.dispatch(AuthActions.checkIsJobCreator());
+        this.store.dispatch(AuthActions.loadUserData());
         return token;
       })
     )
@@ -58,7 +59,6 @@ export class AuthenticationService {
     const token = localStorage.getItem(JWT_TOKEN);
     const isTokenValid = !this.jwtHelper.isTokenExpired(token)
     this.store.dispatch(AuthActions.setIsLoggedIn(isTokenValid));
-    this.store.dispatch(AuthActions.getUserProfile());
     return of(isTokenValid);
   }
 
@@ -102,7 +102,7 @@ export class AuthenticationService {
     this.store.dispatch(AuthActions.setIsLoggedIn(false));
     this.store.dispatch(AuthActions.setIsJobCreator(false));
     this.store.dispatch(AuthActions.setIsAdmin(false));
-    this.store.dispatch(AuthActions.setUserProfile(null));
+    this.store.dispatch(AuthActions.loadUserDataSuccess(null));
     return of(true);
   }
 
